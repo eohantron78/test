@@ -1,0 +1,3362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0c10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Lunar Admin • Multi-Project Console</title>
+
+  <!-- Font Awesome + Inter (for login gate) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       LUNAR ADMIN CONSOLE THEME (original admin panel styles)
+       ============================================================ */
+    :root{
+      --bg-dark:#0a0c10;        --bg-medium:#12151c;     --bg-card:#181c25;
+      --bg-header:#0d1017;      --bg-input:#0b0e14;      --bg-log:#07090d;
+      --border:#232a36;
+      --text-primary:#f1f5f9;   --text-secondary:#94a3b8;--text-muted:#64748b;
+      --accent-blue:#3b82f6;    --accent-blue-hover:#2563eb;
+      --accent-green:#22c55e;   --accent-green-hover:#16a34a;
+      --accent-red:#ef4444;     --accent-red-hover:#dc2626;
+      --accent-orange:#f59e0b;  --accent-orange-hover:#d97706;
+      --accent-purple:#8b5cf6;  --accent-purple-hover:#7c3aed;
+      --accent-cyan:#06b6d4;    --accent-cyan-hover:#0891b2;
+      --online:#4ade80;         --offline:#f87171;
+      --expired:#dc2626;        --expiring-soon:#facc15;
+      --wipe-red:#7f1d1d;       --wipe-red-hover:#991b1b;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:22px; --r-xl:28px; --r-pill:999px;
+      --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-7:32px;
+      --e-1:0 1px 2px rgba(0,0,0,.35);
+      --e-2:0 2px 8px rgba(0,0,0,.4);
+      --e-3:0 8px 24px rgba(0,0,0,.5);
+      --e-4:0 16px 40px rgba(0,0,0,.6);
+      --font-ui:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",
+                "Segoe UI Variable","Segoe UI",Roboto,"SamsungOne","One UI Sans",
+                "Helvetica Neue",Arial,sans-serif;
+      --font-mono:ui-monospace,SFMono-Regular,"SF Mono","Cascadia Mono",Consolas,
+                  "Roboto Mono",monospace;
+      --safe-t:env(safe-area-inset-top,0px);
+      --safe-b:env(safe-area-inset-bottom,0px);
+      --safe-l:env(safe-area-inset-left,0px);
+      --safe-r:env(safe-area-inset-right,0px);
+    }
+    *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;}
+    body{
+      font-family:var(--font-ui);background:var(--bg-dark);color:var(--text-primary);
+      font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;overflow:hidden;touch-action:manipulation;
+    }
+    #app{
+      display:flex;flex-direction:column;height:100vh;height:100dvh;
+      padding-top:var(--safe-t);padding-left:var(--safe-l);
+      padding-right:var(--safe-r);padding-bottom:var(--safe-b);
+    }
+    .topbar{
+      display:flex;align-items:center;gap:var(--s-3);
+      padding:var(--s-3) var(--s-4);
+      background:linear-gradient(180deg,rgba(13,16,23,.96),rgba(13,16,23,.86));
+      backdrop-filter:saturate(180%) blur(20px);
+      -webkit-backdrop-filter:saturate(180%) blur(20px);
+      border-bottom:1px solid var(--border);box-shadow:var(--e-1);
+      position:relative;z-index:20;flex-shrink:0;min-height:56px;
+    }
+    .topbar h1{
+      margin:0;font-size:16px;font-weight:800;letter-spacing:-.2px;
+      background:linear-gradient(135deg,#fff,#94a3b8);
+      -webkit-background-clip:text;background-clip:text;
+      -webkit-text-fill-color:transparent;white-space:nowrap;
+    }
+    .topbar .brand-sub{
+      font-size:10px;color:var(--text-muted);letter-spacing:.5px;
+      text-transform:uppercase;font-weight:600;
+    }
+    .topbar-spacer{flex:1;}
+    .topbar-actions{display:flex;gap:var(--s-2);align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;
+      font-family:inherit;font-size:12px;font-weight:700;padding:9px 14px;
+      border:none;border-radius:var(--r-sm);color:#fff;background:#334155;
+      cursor:pointer;transition:transform .12s ease, background .15s ease, box-shadow .2s ease, opacity .15s;
+      user-select:none;white-space:nowrap;box-shadow:var(--e-1);min-height:38px;
+    }
+    .btn:active{transform:scale(.96);}
+    .btn:hover{box-shadow:var(--e-2);}
+    .btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .btn.sm{padding:6px 10px;font-size:11px;min-height:30px;border-radius:var(--r-xs);}
+    .btn.lg{padding:12px 20px;font-size:14px;min-height:46px;border-radius:var(--r-md);}
+    .btn.block{width:100%;}
+    .btn.primary{background:var(--accent-blue);}
+    .btn.primary:hover{background:var(--accent-blue-hover);}
+    .btn.green{background:var(--accent-green);}
+    .btn.green:hover{background:var(--accent-green-hover);}
+    .btn.red{background:var(--accent-red);}
+    .btn.red:hover{background:var(--accent-red-hover);}
+    .btn.orange{background:var(--accent-orange);color:#111;}
+    .btn.orange:hover{background:var(--accent-orange-hover);}
+    .btn.purple{background:var(--accent-purple);}
+    .btn.purple:hover{background:var(--accent-purple-hover);}
+    .btn.cyan{background:var(--accent-cyan);}
+    .btn.cyan:hover{background:var(--accent-cyan-hover);}
+    .btn.wipe{background:var(--wipe-red);}
+    .btn.wipe:hover{background:var(--wipe-red-hover);}
+    .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text-secondary);}
+    .btn.ghost:hover{background:var(--bg-card);color:var(--text-primary);}
+    .tabsbar{
+      display:flex;gap:var(--s-2);padding:var(--s-2) var(--s-3);
+      background:var(--bg-header);overflow-x:auto;scrollbar-width:none;
+      flex-shrink:0;border-bottom:1px solid var(--border);
+    }
+    .tabsbar::-webkit-scrollbar{display:none;}
+    .tab{
+      flex-shrink:0;padding:9px 16px;border-radius:var(--r-pill);
+      background:var(--bg-medium);color:var(--text-secondary);
+      font-size:12px;font-weight:700;cursor:pointer;border:1px solid transparent;
+      white-space:nowrap;transition:all .18s ease;min-height:36px;
+      display:inline-flex;align-items:center;gap:6px;
+    }
+    .tab.active{
+      background:linear-gradient(135deg,var(--accent-blue),#6366f1);
+      color:#fff;box-shadow:0 4px 14px rgba(59,130,246,.4);
+    }
+    .tab:active{transform:scale(.96);}
+    .panels{flex:1;overflow:hidden;position:relative;}
+    .panel{
+      position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+      -webkit-overflow-scrolling:touch;padding:var(--s-4);
+      display:none;animation:fadeIn .25s ease;
+    }
+    .panel.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+    .card{
+      background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--r-md);padding:var(--s-4);margin-bottom:var(--s-3);
+      box-shadow:var(--e-1);transition:box-shadow .2s ease, transform .2s ease;
+    }
+    .card:hover{box-shadow:var(--e-2);}
+    .card-title{
+      font-size:11px;font-weight:800;text-transform:uppercase;
+      letter-spacing:.8px;color:var(--text-muted);
+      margin:0 0 var(--s-3) 0;display:flex;align-items:center;gap:var(--s-2);
+    }
+    .card-title .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-blue);}
+    .grid{display:grid;gap:var(--s-3);}
+    .grid.cols-2{grid-template-columns:repeat(2,1fr);}
+    .grid.cols-3{grid-template-columns:repeat(3,1fr);}
+    .grid.cols-4{grid-template-columns:repeat(4,1fr);}
+    @media(max-width:720px){
+      .grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:1fr;}
+    }
+    @media(min-width:721px) and (max-width:1024px){
+      .grid.cols-3,.grid.cols-4{grid-template-columns:repeat(2,1fr);}
+    }
+    @media(max-width:400px){
+      .topbar h1{font-size:14px;}
+      .topbar .brand-sub{display:none;}
+      .btn{padding:8px 10px;font-size:11px;}
+      .panel{padding:var(--s-3);}
+    }
+    label.field{display:block;margin-bottom:var(--s-3);}
+    label.field > span{
+      display:block;font-size:11px;font-weight:700;
+      color:var(--text-muted);margin-bottom:6px;
+      text-transform:uppercase;letter-spacing:.5px;
+    }
+    input[type=text],input[type=password],input[type=number],input[type=date],
+    input[type=datetime-local],select,textarea{
+      width:100%;background:var(--bg-input);border:1px solid var(--border);
+      border-radius:var(--r-sm);color:var(--text-primary);font-family:inherit;
+      font-size:14px;padding:11px 13px;outline:none;
+      transition:border-color .18s, box-shadow .18s;min-height:44px;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color:var(--accent-blue);
+      box-shadow:0 0 0 3px rgba(59,130,246,.18);
+    }
+    textarea{min-height:80px;resize:vertical;font-family:var(--font-mono);font-size:12px;}
+    select{cursor:pointer;-webkit-appearance:none;appearance:none;
+      background-image:linear-gradient(45deg,transparent 50%,var(--text-muted) 50%),
+                       linear-gradient(135deg,var(--text-muted) 50%,transparent 50%);
+      background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;
+      background-size:5px 5px,5px 5px;background-repeat:no-repeat;
+      padding-right:36px;}
+    input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent-blue);cursor:pointer;vertical-align:middle;}
+    .row{display:flex;gap:var(--s-2);align-items:center;flex-wrap:wrap;}
+    .chip{
+      display:inline-flex;align-items:center;gap:5px;
+      padding:4px 10px;border-radius:var(--r-pill);
+      font-size:11px;font-weight:700;background:var(--bg-medium);
+      color:var(--text-secondary);border:1px solid var(--border);
+    }
+    .chip.online{background:rgba(74,222,128,.14);color:var(--online);border-color:rgba(74,222,128,.3);}
+    .chip.offline{background:rgba(248,113,113,.14);color:var(--offline);border-color:rgba(248,113,113,.3);}
+    .chip.expired{background:rgba(220,38,38,.18);color:#fca5a5;border-color:rgba(220,38,38,.4);}
+    .chip.warn{background:rgba(250,204,21,.14);color:var(--expiring-soon);border-color:rgba(250,204,21,.35);}
+    .chip.info{background:rgba(59,130,246,.14);color:#93c5fd;border-color:rgba(59,130,246,.3);}
+    .device-card,.license-card{
+      background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--r-md);overflow:hidden;margin-bottom:var(--s-3);
+      box-shadow:var(--e-1);transition:box-shadow .2s ease;
+    }
+    .device-card:hover,.license-card:hover{box-shadow:var(--e-2);}
+    .device-head,.license-head{
+      display:flex;align-items:center;gap:var(--s-2);
+      padding:var(--s-3) var(--s-3);flex-wrap:wrap;
+    }
+    .device-head .name{font-weight:800;font-size:15px;letter-spacing:-.2px;}
+    .device-head .meta{font-size:11px;color:var(--text-muted);}
+    .device-actions{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+    .device-body,.license-body{
+      background:var(--bg-medium);padding:var(--s-4);display:none;
+      border-top:1px solid var(--border);animation:slideDown .22s ease;
+    }
+    .device-body.open,.license-body.open{display:block;}
+    @keyframes slideDown{from{opacity:0;max-height:0;}to{opacity:1;max-height:2000px;}}
+    .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:12px;margin-bottom:var(--s-2);}
+    .kv dt{color:var(--text-muted);font-weight:600;}
+    .kv dd{margin:0;color:var(--text-primary);word-break:break-all;font-family:var(--font-mono);font-size:11px;}
+    .log{
+      background:var(--bg-log);border:1px solid var(--border);
+      border-radius:var(--r-sm);padding:var(--s-3);
+      font-family:var(--font-mono);font-size:11px;color:#cbd5e1;
+      max-height:340px;overflow-y:auto;white-space:pre-wrap;
+      word-break:break-word;line-height:1.55;
+    }
+    .log .l-info{color:#cbd5e1;}
+    .log .l-success{color:var(--online);}
+    .log .l-error{color:#fca5a5;}
+    .log .l-warning{color:var(--expiring-soon);}
+    .table-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--border);background:var(--bg-card);}
+    table.tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:640px;}
+    table.tbl th{
+      background:var(--bg-medium);color:var(--text-muted);
+      text-align:left;padding:10px 12px;font-size:10px;
+      text-transform:uppercase;letter-spacing:.6px;font-weight:800;
+      border-bottom:1px solid var(--border);position:sticky;top:0;
+    }
+    table.tbl td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text-primary);}
+    table.tbl tr:last-child td{border-bottom:none;}
+    table.tbl tr:hover td{background:rgba(59,130,246,.06);cursor:pointer;}
+    .modal-back{
+      position:fixed;inset:0;background:rgba(0,0,0,.72);
+      backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+      display:none;align-items:center;justify-content:center;
+      z-index:1000;padding:var(--s-3);animation:fadeIn .2s ease;
+    }
+    .modal-back.open{display:flex;}
+    .modal{
+      background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--r-lg);width:100%;max-width:520px;
+      max-height:92vh;overflow-y:auto;box-shadow:var(--e-4);
+      animation:pop .25s cubic-bezier(.18,.89,.32,1.28);
+    }
+    @keyframes pop{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+    .modal-head{padding:var(--s-5) var(--s-5) var(--s-3);display:flex;align-items:center;justify-content:space-between;}
+    .modal-head h3{margin:0;font-size:17px;font-weight:800;letter-spacing:-.3px;}
+    .modal-body{padding:0 var(--s-5) var(--s-4);}
+    .modal-foot{padding:var(--s-4) var(--s-5) var(--s-5);display:flex;gap:var(--s-2);justify-content:flex-end;flex-wrap:wrap;}
+    .close-x{background:transparent;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;padding:4px 8px;border-radius:var(--r-xs);}
+    .close-x:hover{background:var(--bg-medium);color:var(--text-primary);}
+    .screen-modal .modal{max-width:96vw;width:96vw;max-height:94vh;}
+    .screen-canvas-wrap{
+      background:#000;border-radius:var(--r-sm);overflow:hidden;position:relative;
+      display:flex;align-items:center;justify-content:center;
+      min-height:200px;max-height:70vh;
+    }
+    .screen-canvas-wrap canvas{display:block;max-width:100%;max-height:70vh;cursor:crosshair;touch-action:none;}
+    .toasts{position:fixed;bottom:calc(20px + var(--safe-b));left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+    .toast{
+      background:var(--bg-card);border:1px solid var(--border);
+      border-left:4px solid var(--accent-blue);padding:11px 16px;
+      border-radius:var(--r-sm);font-size:13px;color:var(--text-primary);
+      box-shadow:var(--e-3);min-width:220px;max-width:90vw;animation:slideUp .3s ease;
+    }
+    .toast.success{border-left-color:var(--accent-green);}
+    .toast.error{border-left-color:var(--accent-red);}
+    .toast.warn{border-left-color:var(--accent-orange);}
+    @keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+    .empty{text-align:center;padding:var(--s-7) var(--s-4);color:var(--text-muted);font-size:13px;}
+    .empty .big{font-size:44px;margin-bottom:var(--s-3);opacity:.6;}
+    .stat{background:var(--bg-medium);border-radius:var(--r-sm);padding:var(--s-3);text-align:center;}
+    .stat .v{font-size:20px;font-weight:800;color:var(--text-primary);letter-spacing:-.5px;}
+    .stat .l{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-top:2px;}
+    .mono{font-family:var(--font-mono);font-size:11px;}
+    .muted{color:var(--text-muted);}
+    .small{font-size:11px;}
+    .right{margin-left:auto;}
+    .center{text-align:center;}
+    .hidden{display:none !important;}
+    .sep{height:1px;background:var(--border);margin:var(--s-3) 0;}
+    .flex{display:flex;gap:var(--s-2);align-items:center;flex-wrap:wrap;}
+    .flex.between{justify-content:space-between;}
+    .flex.col{flex-direction:column;align-items:stretch;}
+    @media(max-width:400px){.topbar h1{font-size:13px;}.btn{padding:7px 9px;font-size:10px;min-height:34px;}}
+    @media(min-width:1025px){
+      ::-webkit-scrollbar{width:10px;height:10px;}
+      ::-webkit-scrollbar-track{background:var(--bg-dark);}
+      ::-webkit-scrollbar-thumb{background:#2a3140;border-radius:6px;border:2px solid var(--bg-dark);}
+      ::-webkit-scrollbar-thumb:hover{background:#3a4456;}
+    }
+
+    /* ============================================================
+       LOGIN GATE (standalone styling from Lunar login panel)
+       ============================================================ */
+    .login-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-dark);
+      padding: 16px;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 24px 20px 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .login-card .brand {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text-primary);
+    }
+    .login-card .brand-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .login-card .info-row {
+      display: flex;
+      justify-content: space-between;
+      background: var(--bg-medium);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-top: 12px;
+      border: 1px solid var(--border);
+    }
+    .login-card .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .login-card .info-item .label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .login-card .info-item .value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+    .login-card .info-item .value.mono {
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .login-card .online-badge {
+      color: var(--online);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .login-card input {
+      width: 100%;
+      padding: 12px 14px;
+      margin-top: 8px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-size: 15px;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: var(--font-mono);
+      letter-spacing: 1px;
+    }
+    .login-card input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    .login-card input::placeholder {
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+      letter-spacing: normal;
+      font-weight: 400;
+    }
+    .login-card .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .login-card .btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font-ui);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.3px;
+      touch-action: manipulation;
+    }
+    .login-card .btn:active {
+      transform: scale(0.97);
+    }
+    .btn-primary {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent-blue-hover);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: #334155;
+      color: #fff;
+    }
+    .btn-secondary:hover {
+      background: #475569;
+    }
+    .login-card .status-box {
+      margin-top: 14px;
+      background: var(--bg-medium);
+      border-radius: 10px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+    }
+    .login-card .status-box .label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .login-card .status-box .msg {
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .login-card .status-box .sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Admin console wrapper hidden by default */
+    #adminConsole {
+      display: none;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       LOGIN GATE (standalone)
+       ============================================================ -->
+  <div class="login-gate" id="loginGate">
+    <div class="login-card">
+      <div class="brand">LUNAR ADMIN</div>
+      <div class="brand-sub">License required to open admin console</div>
+
+      <div class="info-row">
+        <div class="info-item">
+          <div class="label">COMPUTER</div>
+          <div class="value" id="loginComputerName">—</div>
+        </div>
+        <div class="info-item" style="text-align:right">
+          <div class="label">STATUS</div>
+          <div class="value online-badge" id="loginOnlineBadge">● ONLINE</div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-item" style="flex:1">
+          <div class="label">PUBLIC IP</div>
+          <div class="value mono" id="loginPublicIp">Loading…</div>
+        </div>
+        <div class="info-item" style="flex:1;text-align:right">
+          <div class="label">DEVICE ID</div>
+          <div class="value mono" id="loginDeviceId">—</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);font-weight:600;margin-bottom:4px">LICENSE KEY</div>
+        <input type="password" id="licenseInput" placeholder="Enter license key" autocomplete="off">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="loginBtn"><i class="fas fa-sign-in-alt"></i> LOGIN</button>
+        <button class="btn btn-secondary" id="exitBtn"><i class="fas fa-times"></i> EXIT</button>
+      </div>
+
+      <div class="status-box">
+        <div class="label">STATUS</div>
+        <div class="msg" id="loginStatusMsg" style="color:var(--expiring-soon)">Waiting for license…</div>
+        <div class="sub" id="loginStatusSub">Connecting…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ADMIN CONSOLE (Multi-Project Console)
+       ============================================================ -->
+  <div id="adminConsole">
+    <div id="app">
+      <header class="topbar">
+        <div>
+          <h1>🗄 Multi-Project Console</h1>
+          <div class="brand-sub">Live Extractor • Lunar Admin</div>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="topbar-actions">
+          <button class="btn ghost sm" id="btnSaveProjects">💾 Save</button>
+          <button class="btn primary sm" id="btnAddDB">＋ Add DB</button>
+          <button class="btn purple sm" id="btnLunar">🌙 Lunar</button>
+        </div>
+      </header>
+
+      <nav class="tabsbar" id="tabs"></nav>
+      <main class="panels" id="panels"></main>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+  <div class="modal-back" id="modalBack">
+    <div class="modal" id="modalBox"></div>
+  </div>
+
+  <script>
+  /* ============================================================
+     LUNAR LOGIN GATE — STANDALONE
+     ============================================================ */
+  const LUNAR_USER_SUPABASE_URL = "https://pywmohlvqpvzqxdavxsa.supabase.co";
+  const LUNAR_USER_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5d21vaGx2cXB2enF4ZGF2eHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDEyNzMsImV4cCI6MjEwOTExNzI3M30.zU9gpHwT_aCxX6NCmnatYAP4Q2IGLkTmmHhKDpI2GWw";
+
+  const HEARTBEAT_SECONDS = 5;
+  const LICENSE_CHECK_SECONDS = 30;
+
+  let loginState = {
+    deviceId: null,
+    computerName: "—",
+    publicIp: "—",
+    license: null,
+    expires: null,
+    loggedIn: false,
+    heartbeatTimer: null,
+    licenseCheckTimer: null,
+  };
+
+  function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  function safeText(value) {
+    if (value === null || value === undefined) return '';
+    try { return String(value).trim(); } catch { return ''; }
+  }
+
+  function getComputerName() {
+    try {
+      return navigator.userAgent.split(')')[0].split('(')[1] || 'Web Browser';
+    } catch { return 'Web Browser'; }
+  }
+
+  function getOrCreateDeviceId() {
+    let id = localStorage.getItem('lunar_admin_device_id');
+    if (!id) {
+      id = uuidv4();
+      localStorage.setItem('lunar_admin_device_id', id);
+    }
+    return id;
+  }
+
+  async function getPublicIp() {
+    try {
+      const r = await fetch('https://api.ipify.org?format=json', { timeout: 5000 });
+      const data = await r.json();
+      return data.ip || '—';
+    } catch { return '—'; }
+  }
+
+  async function supabaseRpc(fn, params = {}) {
+    const res = await fetch(`${LUNAR_USER_SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+      method: 'POST',
+      headers: {
+        'apikey': LUNAR_USER_SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${LUNAR_USER_SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`RPC ${fn} failed: ${res.status} ${text.slice(0, 300)}`);
+    }
+    const text = await res.text();
+    if (!text) return null;
+    try { return JSON.parse(text); } catch { return text; }
+  }
+
+  function setLoginStatus(text, color) {
+    const el = document.getElementById('loginStatusMsg');
+    if (!el) return;
+    el.textContent = text;
+    el.style.color = color || 'var(--expiring-soon)';
+  }
+
+  function setLoginSubStatus(text, color) {
+    const el = document.getElementById('loginStatusSub');
+    if (!el) return;
+    el.textContent = text;
+    el.style.color = color || 'var(--text-muted)';
+  }
+
+  async function initLoginGate() {
+    loginState.deviceId = getOrCreateDeviceId();
+    loginState.computerName = getComputerName();
+
+    document.getElementById('loginComputerName').textContent = loginState.computerName;
+    document.getElementById('loginDeviceId').textContent = loginState.deviceId.slice(0, 18) + '…';
+
+    const ip = await getPublicIp();
+    loginState.publicIp = ip;
+    document.getElementById('loginPublicIp').textContent = ip;
+
+    try {
+      await supabaseRpc('lunar_register_device', {
+        p_device_id: loginState.deviceId,
+        p_computer_name: loginState.computerName,
+        p_public_ip: loginState.publicIp,
+      });
+      setLoginSubStatus('Connected to server', 'var(--online)');
+    } catch (e) {
+      setLoginSubStatus('Server connection error', 'var(--offline)');
+      console.error('Register error:', e);
+    }
+  }
+
+  async function attemptLogin() {
+    const licenseKey = document.getElementById('licenseInput').value.trim();
+    if (!licenseKey) {
+      alert('Please enter a license key.');
+      return;
+    }
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    setLoginStatus('Logging in…', 'var(--expiring-soon)');
+
+    try {
+      const result = await supabaseRpc('lunar_login', {
+        p_license_key: licenseKey,
+        p_device_id: loginState.deviceId,
+        p_computer_name: loginState.computerName,
+        p_public_ip: loginState.publicIp,
+      });
+
+      if (result && result.success === false) {
+        throw new Error(result.message || 'Login failed');
+      }
+      if (result === false) throw new Error('Login rejected by server.');
+
+      loginState.license = licenseKey;
+      loginState.expires = result?.expires_at || null;
+      loginState.loggedIn = true;
+
+      setLoginStatus('Login successful!', 'var(--online)');
+      setLoginSubStatus('Starting admin console…', 'var(--online)');
+
+      startHeartbeat();
+      startLicenseCheck();
+
+      // Hide login gate, show admin console
+      document.getElementById('loginGate').style.display = 'none';
+      document.getElementById('adminConsole').style.display = 'block';
+
+      // Initialize admin console if not already
+      if (typeof initAdminConsole === 'function') {
+        initAdminConsole(loginState.license, loginState.expires);
+      } else if (typeof boot === 'function') {
+        boot();
+      }
+
+    } catch (e) {
+      setLoginStatus('Login failed: ' + e.message, 'var(--offline)');
+      alert('Login failed: ' + e.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function startHeartbeat() {
+    if (loginState.heartbeatTimer) clearInterval(loginState.heartbeatTimer);
+    loginState.heartbeatTimer = setInterval(async () => {
+      try {
+        const result = await supabaseRpc('lunar_heartbeat', {
+          p_device_id: loginState.deviceId,
+          p_computer_name: loginState.computerName,
+          p_public_ip: loginState.publicIp,
+        });
+
+        if (result && result.forced_logout) {
+          forcedLogout('License is inactive');
+          return;
+        }
+        setLoginSubStatus('Connected • heartbeat OK', 'var(--online)');
+      } catch (e) {
+        setLoginSubStatus('Server connection error', 'var(--offline)');
+        console.error('Heartbeat error:', e);
+      }
+    }, HEARTBEAT_SECONDS * 1000);
+  }
+
+  function startLicenseCheck() {
+    if (loginState.licenseCheckTimer) clearInterval(loginState.licenseCheckTimer);
+    loginState.licenseCheckTimer = setInterval(async () => {
+      if (!loginState.loggedIn || !loginState.license) return;
+      try {
+        const res = await fetch(
+          `${LUNAR_USER_SUPABASE_URL}/rest/v1/lunar_licenses?select=license_key,is_active,expires_at&license_key=eq.${encodeURIComponent(loginState.license)}`,
+          {
+            headers: {
+              'apikey': LUNAR_USER_SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${LUNAR_USER_SUPABASE_ANON_KEY}`,
+            }
+          }
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        const rows = Array.isArray(data) ? data : [];
+        if (rows.length === 0) {
+          forcedLogout('License removed');
+          return;
+        }
+        const row = rows[0];
+        if (!row.is_active) {
+          forcedLogout('License is inactive');
+          return;
+        }
+        if (row.expires_at) {
+          const expires = new Date(row.expires_at);
+          if (expires < new Date()) {
+            forcedLogout('License expired');
+            return;
+          }
+        }
+      } catch (e) {
+        console.error('License check error:', e);
+      }
+    }, LICENSE_CHECK_SECONDS * 1000);
+  }
+
+  function forcedLogout(reason) {
+    loginState.loggedIn = false;
+    if (loginState.heartbeatTimer) clearInterval(loginState.heartbeatTimer);
+    if (loginState.licenseCheckTimer) clearInterval(loginState.licenseCheckTimer);
+    alert('Session ended: ' + reason);
+    document.getElementById('loginGate').style.display = 'flex';
+    document.getElementById('adminConsole').style.display = 'none';
+    document.getElementById('licenseInput').value = '';
+    setLoginStatus('Waiting for license…', 'var(--expiring-soon)');
+    setLoginSubStatus('Disconnected', 'var(--offline)');
+  }
+
+  function logoutAdmin() {
+    if (!confirm('Log out and close the admin console?\n\nYou will need to enter a license key again.')) return;
+    try {
+      supabaseRpc('lunar_logout', {
+        p_device_id: loginState.deviceId,
+        p_license_key: loginState.license || '',
+      }).catch(() => {});
+    } catch (e) { /* ignore */ }
+    loginState.loggedIn = false;
+    if (loginState.heartbeatTimer) clearInterval(loginState.heartbeatTimer);
+    if (loginState.licenseCheckTimer) clearInterval(loginState.licenseCheckTimer);
+    document.getElementById('loginGate').style.display = 'flex';
+    document.getElementById('adminConsole').style.display = 'none';
+    document.getElementById('licenseInput').value = '';
+    setLoginStatus('Waiting for license…', 'var(--expiring-soon)');
+    setLoginSubStatus('Disconnected', 'var(--offline)');
+  }
+
+  window.logoutAdmin = logoutAdmin;
+
+  /* ============================================================
+     CONSTANTS & ADMIN CONSOLE LOGIC
+     ============================================================ */
+  const DEFAULTS = {
+    supabaseUrl: "https://pywmohlvqpvzqxdavxsa.supabase.co",
+    supabaseServiceKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5d21vaGx2cXB2enF4ZGF2eHNhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MzU0MTI3MywiZXhwIjoyMTA5MTE3MjczfQ.h9maM7rL0WjrOafD6n5mgG91soMR4ZK_vgK9Rp34HR8",
+    supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5d21vaGx2cXB2enF4ZGF2eHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDEyNzMsImV4cCI6MjEwOTExNzI3M30.zU9gpHwT_aCxX6NCmnatYAP4Q2IGLkTmmHhKDpI2GWw",
+    projectId: "lqbakrvrluhruejxmjiy",
+    requestTimeout: 30000,
+    refreshInterval: 5000,
+    onlineSeconds: 30,
+    pageSize: 1000,
+    maxDatesFetch: 50000,
+    lunarRefresh: 5000,
+    lunarOnlineTimeout: 15,
+    lunarBucket: "lunar_screens",
+    lunarUrl: "https://pywmohlvqpvzqxdavxsa.supabase.co",
+    lunarAdminKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5d21vaGx2cXB2enF4ZGF2eHNhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MzU0MTI3MywiZXhwIjoyMTA5MTE3MjczfQ.h9maM7rL0WjrOafD6n5mgG91soMR4ZK_vgK9Rp34HR8",
+  };
+
+  const OA_FILE_SLOTS = {
+    emails_member:    "emails_member.csv",
+    outlook_accounts: "outlook_accounts.csv",
+    group_name:       "GroupName.csv",
+    test_email:       "test_email.txt",
+    trusted_senders:  "trusted_senders.csv",
+  };
+  const SPLITTABLE_SLOTS = new Set(["emails_member","outlook_accounts","group_name","trusted_senders"]);
+
+  const State = { projects: [], tabs: [], activeTabId: null };
+
+  /* ============================================================
+     UTILITIES
+     ============================================================ */
+  const $  = (s,r=document)=>r.querySelector(s);
+  const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
+  const uid = ()=>Math.random().toString(36).slice(2,10);
+
+  function escapeHtml(s){
+    if(s===null||s===undefined) return "";
+    return String(s).replace(/[&<>"']/g,c=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[c]);
+  }
+  function safeTextAdmin(v){
+    if(v===null||v===undefined) return "";
+    try{ return String(v).trim(); }catch(e){ return ""; }
+  }
+  function safeFilename(name){
+    return String(name).replace(/[^A-Za-z0-9\-_.]/g,"_");
+  }
+  function parseDatetime(value){
+    if(!value) return null;
+    try{
+      let s = String(value);
+      if(s.endsWith("Z")) s = s.slice(0,-1) + "+00:00";
+      const d = new Date(s);
+      if(isNaN(d.getTime())) return null;
+      return d;
+    }catch(e){ return null; }
+  }
+  function isOnline(lastSeen, windowSec=DEFAULTS.onlineSeconds){
+    const d = parseDatetime(lastSeen);
+    if(!d) return false;
+    return (Date.now() - d.getTime())/1000 <= windowSec;
+  }
+  function formatLastSeen(value){
+    const d = parseDatetime(value);
+    if(!d) return "-";
+    const pad = n=>String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+  function isoNow(){ return new Date().toISOString(); }
+  function humanizeSeconds(total){
+    total = Math.floor(total);
+    const neg = total<0; total = Math.abs(total);
+    const d = Math.floor(total/86400);
+    const h = Math.floor((total%86400)/3600);
+    const m = Math.floor((total%3600)/60);
+    const s = total%60;
+    const parts=[];
+    if(d) parts.push(`${d}d`);
+    if(h||d) parts.push(`${h}h`);
+    if(m||h||d) parts.push(`${m}m`);
+    parts.push(`${s}s`);
+    return (neg?"-":"") + parts.join(" ");
+  }
+  function todayStr(){
+    const d=new Date();const p=n=>String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+  }
+  function yesterdayStr(){
+    const d=new Date(Date.now()-86400000);const p=n=>String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+  }
+  function parseDateOrThrow(s){
+    const m = String(s).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!m) throw new Error("Use YYYY-MM-DD");
+    const [,y,mo,d]=m.map(Number);
+    if(mo<1||mo>12||d<1||d>31) throw new Error("Invalid date");
+    return [y,mo,d];
+  }
+  function parseUserDatetime(text){
+    text = String(text||"").trim();
+    if(!text) throw new Error("Empty date/time");
+    const fmts = [
+      /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/,
+      /^(\d{2})-(\d{2})-(\d{4})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/,
+      /^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/,
+      /^(\d{4})\/(\d{2})\/(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/,
+    ];
+    for(let i=0;i<fmts.length;i++){
+      const m = text.match(fmts[i]);
+      if(!m) continue;
+      let Y,Mo,D,H,Mi,S;
+      if(i===0||i===3){ Y=+m[1]; Mo=+m[2]; D=+m[3]; }
+      else { D=+m[1]; Mo=+m[2]; Y=+m[3]; }
+      H=+m[4]; Mi=+m[5]; S=m[6]?+m[6]:0;
+      const dt = new Date(Y,Mo-1,D,H,Mi,S,0);
+      if(isNaN(dt.getTime())) throw new Error("Invalid date/time");
+      return dt;
+    }
+    throw new Error("Invalid date/time format. Use YYYY-MM-DD HH:MM");
+  }
+  function generateLicenseKey(prefix,groups,len){
+    prefix = safeTextAdmin(prefix).toUpperCase().replace(/[^A-Z0-9-]/g,"") || "LUNAR";
+    groups = Math.max(1,Math.min(parseInt(groups)||3,10));
+    len    = Math.max(1,Math.min(parseInt(len)||6,32));
+    const A="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const parts=[];
+    for(let i=0;i<groups;i++){
+      let p="";
+      for(let j=0;j<len;j++) p+=A[Math.floor(Math.random()*A.length)];
+      parts.push(p);
+    }
+    return prefix+"-"+parts.join("-");
+  }
+  function makeCommandId(){ return Date.now(); }
+
+  function getSourceIp(src){
+    if(!src) return "—";
+    return safeTextAdmin(src.public_ip) || safeTextAdmin(src.local_ip) || safeTextAdmin(src.ip_address) || safeTextAdmin(src.ip) || "—";
+  }
+
+  /* ============================================================
+     TOAST / MODAL
+     ============================================================ */
+  function toast(msg,type="info",timeout=3200){
+    const c=$("#toasts");
+    const el=document.createElement("div");
+    el.className="toast "+(type||"");
+    el.textContent=msg;
+    c.appendChild(el);
+    setTimeout(()=>{el.style.opacity="0";el.style.transform="translateY(12px)";setTimeout(()=>el.remove(),300);},timeout);
+  }
+  function openModal(html,{width="520px",className=""}={}){
+    const back=$("#modalBack"), box=$("#modalBox");
+    box.style.maxWidth = width;
+    box.className = "modal "+className;
+    box.innerHTML = html;
+    back.classList.add("open");
+  }
+  function closeModal(){ $("#modalBack").classList.remove("open"); }
+  $("#modalBack").addEventListener("click",(e)=>{ if(e.target.id==="modalBack") closeModal(); });
+
+  function confirmModal(title,message,{danger=false,okText="Confirm"}={}){
+    return new Promise(resolve=>{
+      openModal(`
+        <div class="modal-head">
+          <h3>${escapeHtml(title)}</h3>
+          <button class="close-x" data-act="cancel">×</button>
+        </div>
+        <div class="modal-body">
+          <p style="margin:0;white-space:pre-wrap;color:var(--text-secondary);font-size:13px;">${escapeHtml(message)}</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" data-act="cancel">Cancel</button>
+          <button class="btn ${danger?'red':'primary'}" data-act="ok">${escapeHtml(okText)}</button>
+        </div>
+      `,{width:"440px"});
+      const box=$("#modalBox");
+      const done=(v)=>{closeModal();resolve(v);};
+      $$("[data-act]",box).forEach(b=>b.addEventListener("click",()=>{
+        if(b.dataset.act==="ok") done(true); else done(false);
+      }));
+    });
+  }
+  function promptModal(title,label,{placeholder="",defaultValue="",type="text"}={}){
+    return new Promise(resolve=>{
+      openModal(`
+        <div class="modal-head">
+          <h3>${escapeHtml(title)}</h3>
+          <button class="close-x" data-act="cancel">×</button>
+        </div>
+        <div class="modal-body">
+          <label class="field">
+            <span>${escapeHtml(label)}</span>
+            <input type="${type}" id="promptInput" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(defaultValue)}" />
+          </label>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" data-act="cancel">Cancel</button>
+          <button class="btn primary" data-act="ok">OK</button>
+        </div>
+      `,{width:"440px"});
+      setTimeout(()=>{const i=$("#promptInput"); if(i){i.focus();i.select();}},50);
+      const box=$("#modalBox");
+      const done=(v)=>{closeModal();resolve(v);};
+      $$("[data-act]",box).forEach(b=>b.addEventListener("click",()=>{
+        if(b.dataset.act==="ok") done($("#promptInput").value);
+        else done(null);
+      }));
+      $("#promptInput").addEventListener("keydown",e=>{
+        if(e.key==="Enter") done($("#promptInput").value);
+        if(e.key==="Escape") done(null);
+      });
+    });
+  }
+
+  /* ============================================================
+     PROJECT STORAGE
+     ============================================================ */
+  const PROJECTS_KEY = "extractor_admin_projects_v1";
+  function loadProjects(){
+    try{
+      const raw = localStorage.getItem(PROJECTS_KEY);
+      if(raw){
+        const data = JSON.parse(raw);
+        if(Array.isArray(data) && data.length){
+          const clean = [];
+          for(const p of data){
+            if(!p||typeof p!=="object") continue;
+            const url = safeTextAdmin(p.url);
+            const key = safeTextAdmin(p.service_key||p.anon_key);
+            const pid = safeTextAdmin(p.project_id);
+            if(url && key){
+              clean.push({
+                name: p.name||pid||"Project",
+                url, anon_key: safeTextAdmin(p.anon_key),
+                service_key: key, project_id: pid,
+              });
+            }
+          }
+          if(clean.length) return clean;
+        }
+      }
+    }catch(e){ console.error("loadProjects",e); }
+    return [{
+      name:"Default Project",
+      url: DEFAULTS.supabaseUrl,
+      anon_key: DEFAULTS.supabaseAnonKey,
+      service_key: (DEFAULTS.supabaseServiceKey!=="PASTE_YOUR_SERVICE_ROLE_KEY_HERE"
+                    ? DEFAULTS.supabaseServiceKey : DEFAULTS.supabaseAnonKey),
+      project_id: DEFAULTS.projectId,
+    }];
+  }
+  function saveProjects(){
+    try{ localStorage.setItem(PROJECTS_KEY, JSON.stringify(State.projects)); }
+    catch(e){ console.error("saveProjects",e); }
+  }
+
+  /* ============================================================
+     SUPABASE CLIENT
+     ============================================================ */
+  class SupabaseClient{
+    constructor(url,key){
+      this.url = (url||"").replace(/\/+$/,"");
+      this.key = key||"";
+    }
+    headers(extra){
+      return Object.assign({
+        "apikey": this.key,
+        "Authorization": "Bearer "+this.key,
+        "Content-Type": "application/json",
+      }, extra||{});
+    }
+
+    async rest(path,{method="GET",query={},body=null,prefer=null,headersExtra=null,timeout=DEFAULTS.requestTimeout}={}){
+      const base = this.url+"/rest/v1/"+path;
+      const parts = [];
+      Object.entries(query||{}).forEach(([k,v])=>{
+        if(v===undefined||v===null||v==="") return;
+        parts.push(`${encodeURIComponent(k)}=${v}`);
+      });
+      const qs = parts.length ? ("?"+parts.join("&")) : "";
+      const fullUrl = base + qs;
+
+      const headers = this.headers(Object.assign(
+        prefer?{"Prefer":prefer}:{},
+        headersExtra||{}
+      ));
+      const ctl = new AbortController();
+      const t = setTimeout(()=>ctl.abort(),timeout);
+      try{
+        const res = await fetch(fullUrl,{
+          method, headers,
+          body: body?JSON.stringify(body):undefined,
+          signal: ctl.signal,
+        });
+        clearTimeout(t);
+        const text = await res.text();
+        let data = null;
+        try{ data = text?JSON.parse(text):null; }catch(e){ data = text; }
+        if(!res.ok){
+          console.error("[SUPABASE ERROR]",res.status,fullUrl,text);
+          throw new Error(`HTTP ${res.status}: ${(text||"").slice(0,300)}`);
+        }
+        return {data, headers: res.headers, status: res.status};
+      }catch(e){
+        clearTimeout(t);
+        if(e.name==="AbortError") throw new Error("Request timeout");
+        throw e;
+      }
+    }
+
+    async paginatedGet(path, query, {pageSize=DEFAULTS.pageSize, maxRows=null, onProgress=null}={}){
+      const all = [];
+      let start = 0, pageNum = 0;
+      while(true){
+        if(maxRows!=null && all.length>=maxRows) break;
+        const end = start + pageSize - 1;
+        const res = await this.rest(path, {
+          method: "GET",
+          query,
+          headersExtra: {
+            "Range": `${start}-${end}`,
+            "Range-Unit": "items",
+            "Prefer": "count=exact",
+          },
+        });
+        const chunk = res.data;
+        if(!Array.isArray(chunk)) return chunk;
+        if(!chunk.length) break;
+        all.push(...chunk);
+        pageNum++;
+        if(onProgress) try{ onProgress(all.length, pageNum); }catch(e){}
+        if(chunk.length < pageSize) break;
+        start += pageSize;
+      }
+      if(maxRows!=null && all.length>maxRows) all.length = maxRows;
+      return all;
+    }
+
+    async rpc(fn,params){
+      const r = await this.rest("rpc/"+fn,{method:"POST",body:params});
+      return r.data;
+    }
+
+    async getSources(){
+      return this.paginatedGet("extractor_sources",{select:"*",order:"last_seen.desc"});
+    }
+    async getOnlineSources(){
+      const all = await this.getSources();
+      return (all||[]).filter(s=>isOnline(s.last_seen));
+    }
+    async getLiveToday(){
+      const now = new Date();
+      const y = now.getUTCFullYear(), m = now.getUTCMonth()+1, d = now.getUTCDate();
+      return this.getLiveForDate(y,m,d);
+    }
+    async getLiveForDate(y,m,d){
+      const start = new Date(Date.UTC(y,m-1,d,0,0,0,0)).toISOString();
+      const end   = new Date(Date.UTC(y,m-1,d,23,59,59,999)).toISOString();
+      return this.paginatedGet("extracted_group_emails",{
+        select:"*",
+        and:`(last_seen.gte.${start},last_seen.lte.${end})`,
+        order:"first_seen.asc",
+      });
+    }
+    async getLiveForDateAndSource(y,m,d,sourceId){
+      const start = new Date(Date.UTC(y,m-1,d,0,0,0,0)).toISOString();
+      const end   = new Date(Date.UTC(y,m-1,d,23,59,59,999)).toISOString();
+      return this.paginatedGet("extracted_group_emails",{
+        select:"*",
+        and:`(last_seen.gte.${start},last_seen.lte.${end})`,
+        source_id:`eq.${sourceId}`,
+        order:"first_seen.asc",
+      });
+    }
+    async getArchiveForDate(y,m,d,sourceId){
+      const start = new Date(Date.UTC(y,m-1,d,0,0,0,0)).toISOString();
+      const end   = new Date(Date.UTC(y,m-1,d,23,59,59,999)).toISOString();
+      const q = {
+        select:"*",
+        and:`(snapshot_at.gte.${start},snapshot_at.lte.${end})`,
+        order:"snapshot_at.asc",
+      };
+      if(sourceId) q.source_id = `eq.${sourceId}`;
+      return this.paginatedGet("extracted_snapshots",q);
+    }
+    async getAvailableDates(){
+      try{
+        const rows = await this.paginatedGet(
+          "extracted_snapshots",
+          {select:"snapshot_at", order:"snapshot_at.desc"},
+          {maxRows: DEFAULTS.maxDatesFetch}
+        );
+        const set = new Set();
+        (rows||[]).forEach(r=>{
+          const dd = parseDatetime(r.snapshot_at);
+          if(dd){
+            const p=n=>String(n).padStart(2,"0");
+            set.add(`${dd.getFullYear()}-${p(dd.getMonth()+1)}-${p(dd.getDate())}`);
+          }
+        });
+        return Array.from(set).sort().reverse();
+      }catch(e){ console.error(e); return []; }
+    }
+    async sendCommand(sourceId,command,payload){
+      return this.rest("oa_commands",{
+        method:"POST", prefer:"return=minimal",
+        body:{source_id:sourceId,command,payload:payload||{},status:"pending"}
+      });
+    }
+    async upsertFile(sourceId,slot,filename,content){
+      return this.rest("oa_files",{
+        method:"POST",
+        prefer:"resolution=merge-duplicates,return=minimal",
+        body:{source_id:sourceId,slot,filename,content,updated_at:isoNow()}
+      });
+    }
+    async deleteFile(sourceId,slot){
+      try{
+        await this.rest("oa_files",{
+          method:"DELETE", prefer:"return=minimal",
+          query:{source_id:`eq.${sourceId}`, slot:`eq.${slot}`}
+        });
+        return true;
+      }catch(e){ return false; }
+    }
+    async getFile(sourceId,slot){
+      const r = await this.rest("oa_files",{query:{select:"*",source_id:`eq.${sourceId}`,slot:`eq.${slot}`}});
+      const rows = r.data;
+      return rows&&rows[0]?rows[0]:null;
+    }
+    async upsertConfig(sourceId,cfg){
+      return this.rest("oa_config",{
+        method:"POST",
+        prefer:"resolution=merge-duplicates,return=minimal",
+        body:Object.assign({source_id:sourceId,updated_at:isoNow()},cfg)
+      });
+    }
+    async getConfig(sourceId){
+      const r = await this.rest("oa_config",{query:{select:"*",source_id:`eq.${sourceId}`}});
+      const rows = r.data;
+      return rows&&rows[0]?rows[0]:{};
+    }
+    async getStatus(sourceId){
+      const r = await this.rest("oa_status",{query:{select:"*",source_id:`eq.${sourceId}`}});
+      const rows = r.data;
+      return rows&&rows[0]?rows[0]:{};
+    }
+    async getAllStatus(){
+      return this.paginatedGet("oa_status",{select:"*"});
+    }
+  }
+
+  /* ============================================================
+     CSV / TXT SPLITTING
+     ============================================================ */
+  function splitCsvContent(content,numParts,rowsPerPart){
+    const lines = content.split(/\r?\n/);
+    const header = lines[0]||"";
+    const data = lines.slice(1).filter(l=>l.trim()!=="");
+    const total = data.length;
+    if(total===0) return Array(numParts).fill(header+"\n");
+    const parts=[];
+    if(rowsPerPart && rowsPerPart>0){
+      for(let i=0;i<total;i+=rowsPerPart){
+        parts.push(header+"\n"+data.slice(i,i+rowsPerPart).join("\n")+"\n");
+      }
+      return parts;
+    }
+    const per = Math.ceil(total/Math.max(numParts,1));
+    for(let i=0;i<numParts;i++){
+      const chunk = data.slice(i*per,(i+1)*per);
+      parts.push(header+"\n"+chunk.join("\n")+"\n");
+    }
+    return parts;
+  }
+  function splitTxtContent(content,numParts,rowsPerPart){
+    const lines = content.split(/\r?\n/).filter(l=>l.trim()!=="");
+    const total = lines.length;
+    if(total===0) return Array(numParts).fill("");
+    const parts=[];
+    if(rowsPerPart && rowsPerPart>0){
+      for(let i=0;i<total;i+=rowsPerPart) parts.push(lines.slice(i,i+rowsPerPart).join("\n")+"\n");
+      return parts;
+    }
+    const per = Math.ceil(total/Math.max(numParts,1));
+    for(let i=0;i<numParts;i++){
+      const chunk = lines.slice(i*per,(i+1)*per);
+      parts.push(chunk.join("\n")+"\n");
+    }
+    return parts;
+  }
+
+  /* ============================================================
+     CSV DOWNLOAD
+     ============================================================ */
+  function downloadCsv(filename,rows,columns){
+    const cols = columns || ["source_id","computer_name","local_ip","public_ip","group_name","group_email","account","row_key","first_seen","last_seen","updated_at","snapshot_at"];
+    const esc = (v)=>{
+      if(v===null||v===undefined) return "";
+      const s = String(v);
+      if(/[",\n\r]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+      return s;
+    };
+    const lines = [cols.map(esc).join(",")];
+    rows.forEach(r=>{ lines.push(cols.map(c=>esc(r[c])).join(",")); });
+    const blob = new Blob(["\uFEFF"+lines.join("\n")],{type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},100);
+  }
+  function readTextFile(file){
+    return new Promise((resolve,reject)=>{
+      const r = new FileReader();
+      r.onload = ()=>resolve(String(r.result||""));
+      r.onerror = ()=>reject(r.error);
+      r.readAsText(file,"utf-8");
+    });
+  }
+
+  /* ============================================================
+     TAB SYSTEM
+     ============================================================ */
+  function addTab({id,title,type,meta}){
+    if(State.tabs.find(t=>t.id===id)) return;
+    State.tabs.push({id,title,type,meta:meta||{}});
+    renderTabs();
+  }
+  function switchTab(id){
+    State.activeTabId=id;
+    renderTabs(); renderPanels();
+  }
+  function renderTabs(){
+    const nav = $("#tabs");
+    nav.innerHTML = State.tabs.map(t=>`
+      <div class="tab ${t.id===State.activeTabId?'active':''}" data-tab="${escapeHtml(t.id)}">
+        ${escapeHtml(t.title)}
+      </div>`).join("");
+    $$("[data-tab]",nav).forEach(el=>{
+      el.addEventListener("click",()=>switchTab(el.dataset.tab));
+    });
+  }
+  function renderPanels(){
+    const host = $("#panels");
+    const existing = new Map();
+    $$(".panel",host).forEach(p=>existing.set(p.dataset.panelId,p));
+
+    const wanted = new Set(State.tabs.map(t=>t.id));
+    existing.forEach((el,id)=>{
+      if(!wanted.has(id)){
+        if(el._cleanup) try{el._cleanup();}catch(e){}
+        el.remove();
+      }
+    });
+
+    State.tabs.forEach(t=>{
+      let p = existing.get(t.id);
+      if(!p){
+        p = document.createElement("div");
+        p.className = "panel";
+        p.dataset.panelId = t.id;
+        host.appendChild(p);
+        if(t.type==="pc-list")     buildPcListPanel(p,t.meta);
+        else if(t.type==="live")   buildLivePanel(p,t.meta);
+        else if(t.type==="add-db") buildAddDbPanel(p,t);
+        else if(t.type==="lunar")  buildLunarPanel(p,t);
+      }
+      p.classList.toggle("active", t.id===State.activeTabId);
+    });
+  }
+
+  /* ============================================================
+     LOG HELPERS
+     ============================================================ */
+  function pushLog(container,msg,tag="info"){
+    const ts = new Date().toTimeString().slice(0,8);
+    const line = document.createElement("div");
+    line.className = "l-"+tag;
+    line.textContent = `[${ts}] ${msg}`;
+    container.appendChild(line);
+    container.scrollTop = container.scrollHeight;
+    while(container.childElementCount>500) container.removeChild(container.firstChild);
+  }
+
+  /* ============================================================
+     PC LIST PANEL
+     ============================================================ */
+  function buildPcListPanel(panel,meta){
+    const project = meta.project;
+    const client = new SupabaseClient(project.url, project.service_key||project.anon_key);
+    const state = {intervalId:null, online:[], status:{}};
+
+    panel.innerHTML = `
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> ${escapeHtml(project.name||"Project")}</div>
+        <div class="small muted mono" style="word-break:break-all;">${escapeHtml(project.url)}</div>
+        <div class="row" style="margin-top:12px;">
+          <button class="btn primary sm" data-act="master">🌐 Open MASTER Panel</button>
+          <button class="btn ghost sm" data-act="refresh">🔄 Refresh</button>
+          <span class="right chip info" data-role="count">Online PCs: 0</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> Online PCs</div>
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead><tr>
+              <th>Computer</th><th>Public IP</th><th>Local IP</th>
+              <th>Last Seen</th><th>State</th><th>Records</th>
+            </tr></thead>
+            <tbody data-role="pcRows"><tr><td colspan="6" class="center muted small">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="small muted" style="margin-top:8px;">Tap a row to open its full Outlook Automation panel.</div>
+      </div>
+    `;
+
+    const rowsEl = $("[data-role=pcRows]",panel);
+    const cntEl  = $("[data-role=count]",panel);
+
+    async function refresh(){
+      try{
+        const online = await client.getOnlineSources();
+        let allStatus = [];
+        try{ allStatus = await client.getAllStatus()||[]; }catch(e){ allStatus = []; }
+        const statusMap = {};
+        allStatus.forEach(s=>{ statusMap[s.source_id]=s; });
+        state.online = online||[];
+        state.status = statusMap;
+
+        if(!online||!online.length){
+          rowsEl.innerHTML = `<tr><td colspan="6" class="center muted small">No online PCs.</td></tr>`;
+        }else{
+          rowsEl.innerHTML = online.map(s=>{
+            const sid  = escapeHtml(s.source_id||"");
+            const comp = escapeHtml(s.computer_name||"Unknown");
+            const pubIp= escapeHtml(safeTextAdmin(s.public_ip)||"—");
+            const locIp= escapeHtml(safeTextAdmin(s.local_ip)||"—");
+            const last = escapeHtml(formatLastSeen(s.last_seen));
+            const st   = statusMap[s.source_id]||{};
+            const state_ = escapeHtml(st.state||"-");
+            const recs = st.total_accounts!=null?st.total_accounts:(s.total_records||0);
+            return `<tr data-source-id="${sid}" data-computer="${comp}">
+              <td><strong>${comp}</strong></td>
+              <td class="mono small">${pubIp}</td>
+              <td class="mono small">${locIp}</td>
+              <td class="small">${last}</td>
+              <td class="small">${state_}</td>
+              <td class="small">${recs}</td>
+            </tr>`;
+          }).join("");
+          $$("tr[data-source-id]",rowsEl).forEach(tr=>{
+            tr.addEventListener("click",()=>{
+              openPcWindow(tr.dataset.sourceId,tr.dataset.computer,project,client);
+            });
+          });
+        }
+        cntEl.textContent = `Online PCs: ${online?online.length:0}`;
+      }catch(e){
+        rowsEl.innerHTML = `<tr><td colspan="6" class="center small" style="color:#fca5a5">${escapeHtml(e.message)}</td></tr>`;
+      }
+    }
+
+    $("[data-act=refresh]",panel).addEventListener("click",refresh);
+    $("[data-act=master]",panel).addEventListener("click",()=>{
+      openMasterPanel(project,client);
+    });
+
+    refresh();
+    state.intervalId = setInterval(refresh, DEFAULTS.refreshInterval);
+    panel._cleanup = ()=>{ if(state.intervalId) clearInterval(state.intervalId); };
+  }
+
+  /* ============================================================
+     OUTLOOK AUTOMATION
+     ============================================================ */
+  function buildOutlookAutomation(host,{project,client,scopeKind,scopeSourceId,titleText}){
+    const state = { onlineSources: [], intervalId: null, bulkFiles: {} };
+
+    host.innerHTML = `
+      <div class="card" style="background:linear-gradient(135deg,#0d1017,#12151c);">
+        <div class="card-title"><span class="dot"></span> ✦ ${escapeHtml(titleText)} ✦</div>
+        <div class="small muted">${scopeKind==="master"?"🌐 ALL ONLINE PCs":"🖥 "+escapeHtml(scopeSourceId)}</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> ⚙ Configuration</div>
+        <div class="grid cols-2">
+          <label class="field"><span>Mode</span>
+            <select data-cfg="mode">
+              <option>1. Create New</option>
+              <option>2. Review Existing</option>
+              <option>3. Both</option>
+              <option>4. Trusted Only</option>
+              <option selected>5. ALL (All Steps)</option>
+              <option>6. Extract Emails + Trusted</option>
+              <option>7. Add Trusted Sender Only</option>
+            </select>
+          </label>
+          <label class="field"><span>New Groups (0=skip)</span>
+            <input type="number" data-cfg="new_groups" value="0"/>
+          </label>
+          <label class="field"><span>Max Groups / Account</span>
+            <input type="number" data-cfg="max_groups_per_account" value="5"/>
+          </label>
+          <label class="field"><span>Members / Group (max 500)</span>
+            <input type="number" data-cfg="members_per_group" value="30"/>
+          </label>
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <label class="flex small"><input type="checkbox" data-cfg="process_existing" checked/> Process Existing</label>
+          <label class="flex small"><input type="checkbox" data-cfg="add_trusted" checked/> Add Trusted Senders</label>
+          <label class="flex small"><input type="checkbox" data-cfg="use_png_fallback" checked/> PNG Fallback</label>
+          <label class="flex small"><input type="checkbox" data-cfg="headless"/> 🌐 Headless Mode</label>
+        </div>
+        <div class="row" style="margin-top:12px;">
+          <button class="btn green sm" data-act="saveConfig">💾 Save Config</button>
+          <button class="btn ghost sm" data-act="loadConfig">⬇ Load Config</button>
+          <button class="btn ghost sm" data-act="refresh">🔄 Refresh</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> 🖼️ PNG Status</div>
+        <div class="small muted">ℹ PNG is worker-side. Upload add_button.PNG via worker folder.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> 📊 Statistics</div>
+        <div class="grid cols-4">
+          <div class="stat"><div class="v" data-stat="accounts_processed">0</div><div class="l">Processed</div></div>
+          <div class="stat"><div class="v" data-stat="members_added">0</div><div class="l">Members</div></div>
+          <div class="stat"><div class="v" data-stat="groups_processed">0</div><div class="l">Groups</div></div>
+          <div class="stat"><div class="v" data-stat="emails_extracted">0</div><div class="l">Extracted</div></div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <span class="chip info">State: <span data-stat="state">idle</span></span>
+          <span class="chip">Current: <span data-stat="current_account" class="mono small">-</span></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> Controls</div>
+        <div class="row">
+          <button class="btn green" data-cmd="start">▶ START</button>
+          <button class="btn red"   data-cmd="stop">■ STOP</button>
+          <button class="btn ghost" data-cmd="pause">⏸ PAUSE</button>
+          <button class="btn ghost" data-cmd="resume">▶ RESUME</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> 📁 File Uploads (single PC)</div>
+        <div data-role="filesList"></div>
+      </div>
+
+      <div class="card" data-role="bulkCard" style="${scopeKind==="master"?"":"display:none;"}">
+        <div class="card-title"><span class="dot"></span> 📦 BULK Upload → ALL Online PCs (with split)</div>
+        <div class="small muted" style="margin-bottom:10px;">
+          Pick a file per slot. Check <strong>Same to all</strong> to push the same file to every online PC.
+          Uncheck to split rows across PCs.
+        </div>
+        <div class="row small" style="margin-bottom:10px;">
+          <label><input type="radio" name="bulkMode" value="even" checked data-role="bulkMode"/> Split evenly</label>
+          <label style="margin-left:12px;"><input type="radio" name="bulkMode" value="per_rows" data-role="bulkMode"/> Rows per PC:</label>
+          <input type="number" data-role="bulkRowsPerPc" value="100" style="width:80px;min-height:32px;padding:6px 8px;"/>
+        </div>
+        <div data-role="bulkList"></div>
+        <div class="row" style="margin-top:12px;">
+          <button class="btn green sm" data-act="bulkPush">🚀 Push ALL Selected Files</button>
+          <button class="btn ghost sm" data-act="bulkClear">✕ Clear All</button>
+          <span class="small" data-role="bulkStatus" style="color:var(--online);"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> 📋 Log Output</div>
+        <div class="log" data-role="log"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> ⬇ Downloads (date-filtered — never deletes data)</div>
+        <div class="row" style="margin-bottom:8px;">
+          <label class="small">Date:</label>
+          <input type="text" data-role="dlDate" value="${todayStr()}" style="width:130px;min-height:36px;padding:6px 10px;"/>
+          <button class="btn ghost sm" data-act="dlToday">Today</button>
+          <button class="btn ghost sm" data-act="dlYesterday">Yesterday</button>
+        </div>
+        <div class="row">
+          <button class="btn primary sm" data-act="dlLive">⬇ LIVE (by date)</button>
+          <button class="btn primary sm" data-act="dlArchive">⬇ ARCHIVE (by date)</button>
+          <button class="btn green sm"   data-act="dlSaveAll">💾 SAVE ALL (by date)</button>
+        </div>
+      </div>
+    `;
+
+    const logEl = $("[data-role=log]",host);
+    const filesList = $("[data-role=filesList]",host);
+    const bulkList  = $("[data-role=bulkList]",host);
+    const bulkStatus= $("[data-role=bulkStatus]",host);
+
+    const log = (m,tag="info")=>pushLog(logEl,m,tag);
+    log("🚀 Admin panel connected","success");
+
+    Object.entries(OA_FILE_SLOTS).forEach(([slot,defName])=>{
+      const r = document.createElement("div");
+      r.className = "row";
+      r.style.marginBottom = "6px";
+      r.innerHTML = `
+        <div style="flex:1;min-width:120px;">
+          <div class="small mono">${escapeHtml(defName)}</div>
+          <div class="small muted" data-fileinfo="${slot}">(not uploaded)</div>
+        </div>
+        <button class="btn cyan sm" data-act="upload" data-slot="${slot}">⬆ Upload</button>
+        <button class="btn ghost sm" data-act="download" data-slot="${slot}">⬇ Download</button>
+      `;
+      filesList.appendChild(r);
+    });
+
+    filesList.addEventListener("click",async(e)=>{
+      const btn = e.target.closest("button"); if(!btn) return;
+      const slot = btn.dataset.slot;
+      if(!slot) return;
+      if(btn.dataset.act==="upload") await doUpload(slot);
+      if(btn.dataset.act==="download") await doDownload(slot);
+    });
+
+    function getTargetSourceId(){
+      if(scopeKind==="single") return scopeSourceId;
+      return state.onlineSources[0]?.source_id || null;
+    }
+
+    async function doUpload(slot){
+      const sid = getTargetSourceId();
+      if(!sid){ toast("No online PC selected","warn"); return; }
+      const inp = document.createElement("input");
+      inp.type="file"; inp.accept=".csv,.txt";
+      inp.onchange = async ()=>{
+        const f = inp.files[0]; if(!f) return;
+        try{
+          const content = await readTextFile(f);
+          try{ await client.deleteFile(sid,slot); }catch(e){}
+          await client.upsertFile(sid,slot,f.name,content);
+          const info = $(`[data-fileinfo="${slot}"]`,host);
+          if(info) info.textContent = f.name+" ✓";
+          log(`⬆ Uploaded ${OA_FILE_SLOTS[slot]} → ${sid}`,"success");
+          try{ await client.sendCommand(sid,"reload",{slot}); }catch(e){}
+        }catch(e){ toast("Upload failed: "+e.message,"error"); }
+      };
+      inp.click();
+    }
+    async function doDownload(slot){
+      const sid = getTargetSourceId();
+      if(!sid){ toast("No online PC selected","warn"); return; }
+      try{
+        const row = await client.getFile(sid,slot);
+        if(!row){ toast("No file uploaded yet for this slot","warn"); return; }
+        const filename = safeFilename(OA_FILE_SLOTS[slot]||slot);
+        const blob = new Blob([row.content||""],{type:"text/plain"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href=url; a.download=filename;
+        document.body.appendChild(a); a.click();
+        setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},100);
+        log(`⬇ Downloaded ${filename}`,"success");
+      }catch(e){ toast("Download failed: "+e.message,"error"); }
+    }
+
+    if(scopeKind==="master"){
+      Object.entries(OA_FILE_SLOTS).forEach(([slot,defName])=>{
+        const r = document.createElement("div");
+        r.className = "row";
+        r.style.marginBottom = "6px";
+        const splittable = SPLITTABLE_SLOTS.has(slot);
+        r.innerHTML = `
+          <div style="flex:1;min-width:150px;">
+            <div class="small mono">${escapeHtml(defName)}</div>
+            <div class="small muted" data-bulkinfo="${slot}">(no file)</div>
+          </div>
+          ${splittable
+            ? `<label class="small flex"><input type="checkbox" data-same="${slot}"/> Same to all</label>`
+            : `<span class="chip small">(always same)</span>`}
+          <button class="btn cyan sm" data-act="bulkPick" data-slot="${slot}">📂 Pick</button>
+          <button class="btn ghost sm" data-act="bulkClearSlot" data-slot="${slot}">✕</button>
+        `;
+        bulkList.appendChild(r);
+      });
+
+      bulkList.addEventListener("click",async(e)=>{
+        const btn = e.target.closest("button"); if(!btn) return;
+        const slot = btn.dataset.slot;
+        if(btn.dataset.act==="bulkPick"){
+          const inp = document.createElement("input");
+          inp.type="file"; inp.accept=".csv,.txt";
+          inp.onchange = async ()=>{
+            const f = inp.files[0]; if(!f) return;
+            try{
+              const content = await readTextFile(f);
+              state.bulkFiles[slot] = {filename:f.name,content};
+              const info = $(`[data-bulkinfo="${slot}"]`,host);
+              if(info) info.textContent = f.name;
+            }catch(e){ toast("Read failed: "+e.message,"error"); }
+          };
+          inp.click();
+        }
+        if(btn.dataset.act==="bulkClearSlot"){
+          delete state.bulkFiles[slot];
+          const info = $(`[data-bulkinfo="${slot}"]`,host);
+          if(info) info.textContent = "(no file)";
+        }
+      });
+    }
+
+    async function refreshWorker(){
+      try{
+        const online = await client.getOnlineSources();
+        state.onlineSources = online||[];
+
+        if(scopeKind==="single"){
+          const st   = await client.getStatus(scopeSourceId).catch(()=>({}));
+          const cfg  = await client.getConfig(scopeSourceId).catch(()=>({}));
+          applyStatus(st||{});
+          applyConfig(cfg||{});
+          for(const slot of Object.keys(OA_FILE_SLOTS)){
+            client.getFile(scopeSourceId,slot).then(row=>{
+              const info = $(`[data-fileinfo="${slot}"]`,host);
+              if(!info) return;
+              if(row){
+                const d = parseDatetime(row.updated_at);
+                const ts = d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`:"?";
+                info.textContent = `${row.filename||"?"} ✓ ${ts}`;
+              }else info.textContent = "(not uploaded)";
+            }).catch(()=>{});
+          }
+        }else{
+          const allSt = await client.getAllStatus().catch(()=>[])||[];
+          const onlineIds = new Set((online||[]).map(s=>s.source_id));
+          const rows = allSt.filter(s=>onlineIds.has(s.source_id));
+          const t = {processed_accounts:0,members_added:0,groups_processed:0,emails_extracted:0,running:0};
+          rows.forEach(r=>{
+            t.processed_accounts += parseInt(r.processed_accounts)||0;
+            t.members_added      += parseInt(r.members_added)||0;
+            t.groups_processed   += parseInt(r.groups_processed)||0;
+            t.emails_extracted   += parseInt(r.emails_extracted)||0;
+            if(r.state==="running") t.running++;
+          });
+          setStat("state", `running=${t.running} / online=${rows.length}`);
+          setStat("current_account","(aggregate)");
+          setStat("accounts_processed",t.processed_accounts);
+          setStat("members_added",t.members_added);
+          setStat("groups_processed",t.groups_processed);
+          setStat("emails_extracted",t.emails_extracted);
+        }
+      }catch(e){ log("Refresh error: "+e.message,"error"); }
+    }
+
+    function setStat(key,val){ const el = $(`[data-stat="${key}"]`,host); if(el) el.textContent = val; }
+    function applyStatus(st){
+      setStat("state", st.state||"idle");
+      setStat("current_account", st.current_account||"-");
+      setStat("accounts_processed", `${st.processed_accounts||0}/${st.total_accounts||0}`);
+      setStat("members_added", st.members_added||0);
+      setStat("groups_processed", st.groups_processed||0);
+      setStat("emails_extracted", st.emails_extracted||0);
+    }
+    function applyConfig(cfg){
+      ["members_per_group","new_groups","max_groups_per_account"].forEach(k=>{
+        if(cfg[k]!=null){ const el = $(`[data-cfg="${k}"]`,host); if(el) el.value = cfg[k]; }
+      });
+      if(cfg.mode!=null){
+        const el = $("[data-cfg=mode]",host);
+        const mapMode = {1:"1. Create New",2:"2. Review Existing",3:"3. Both",4:"4. Trusted Only",5:"5. ALL (All Steps)",6:"6. Extract Emails + Trusted",7:"7. Add Trusted Sender Only"};
+        if(el) el.value = mapMode[+cfg.mode] || "5. ALL (All Steps)";
+      }
+      ["process_existing","add_trusted","use_png_fallback","headless"].forEach(k=>{
+        if(cfg[k]!=null){ const el = $(`[data-cfg="${k}"]`,host); if(el) el.checked = !!cfg[k]; }
+      });
+    }
+    function collectConfig(){
+      const modeText = $("[data-cfg=mode]",host).value;
+      const modeMap = {"1. Create New":1,"2. Review Existing":2,"3. Both":3,"4. Trusted Only":4,"5. ALL (All Steps)":5,"6. Extract Emails + Trusted":6,"7. Add Trusted Sender Only":7};
+      return {
+        members_per_group: parseInt($("[data-cfg=members_per_group]",host).value)||30,
+        new_groups: parseInt($("[data-cfg=new_groups]",host).value)||0,
+        max_groups_per_account: parseInt($("[data-cfg=max_groups_per_account]",host).value)||5,
+        mode: modeMap[modeText]||5,
+        process_existing: $("[data-cfg=process_existing]",host).checked,
+        add_trusted: $("[data-cfg=add_trusted]",host).checked,
+        use_png_fallback: $("[data-cfg=use_png_fallback]",host).checked,
+        headless: $("[data-cfg=headless]",host).checked,
+      };
+    }
+
+    refreshWorker();
+    state.intervalId = setInterval(refreshWorker, DEFAULTS.refreshInterval);
+
+    $("[data-act=refresh]",host).addEventListener("click",()=>{log("🔄 Manual refresh","info");refreshWorker();});
+    $("[data-act=saveConfig]",host).addEventListener("click",async()=>{
+      try{
+        const cfg = collectConfig();
+        if(scopeKind==="single"){
+          await client.upsertConfig(scopeSourceId,cfg);
+          try{ await client.sendCommand(scopeSourceId,"config",cfg); }catch(e){}
+          log(`💾 Config saved for ${scopeSourceId}`,"success");
+        }else{
+          const online = await client.getOnlineSources();
+          for(const s of online){
+            await client.upsertConfig(s.source_id,cfg).catch(()=>{});
+            await client.sendCommand(s.source_id,"config",cfg).catch(()=>{});
+          }
+          log(`💾 Config pushed to ${online.length} online PCs`,"success");
+        }
+        toast("Config saved","success");
+      }catch(e){ toast("Save failed: "+e.message,"error"); }
+    });
+    $("[data-act=loadConfig]",host).addEventListener("click",async()=>{
+      try{
+        let cfg;
+        if(scopeKind==="single") cfg = await client.getConfig(scopeSourceId);
+        else{
+          const online = await client.getOnlineSources();
+          cfg = online.length? await client.getConfig(online[0].source_id) : {};
+        }
+        applyConfig(cfg||{});
+        log("⬇ Config loaded","info");
+      }catch(e){ log("Load config error: "+e.message,"error"); }
+    });
+
+    $$("[data-cmd]",host).forEach(btn=>{
+      btn.addEventListener("click",async()=>{
+        const command = btn.dataset.cmd;
+        try{
+          if(scopeKind==="single"){
+            await client.sendCommand(scopeSourceId,command);
+            log(`→ '${command}' → ${scopeSourceId}`,"success");
+          }else{
+            const online = await client.getOnlineSources();
+            for(const s of online){
+              try{ await client.sendCommand(s.source_id,command); }
+              catch(e){ log(`Cmd to ${s.source_id} failed: ${e.message}`,"warning"); }
+            }
+            log(`→ '${command}' → ${online.length} online PCs`,"success");
+          }
+          toast("Command sent: "+command,"success");
+        }catch(e){ toast("Command failed: "+e.message,"error"); }
+      });
+    });
+
+    const bulkPushBtn = $("[data-act=bulkPush]",host);
+    if(bulkPushBtn){
+      bulkPushBtn.addEventListener("click",async()=>{
+        if(!Object.keys(state.bulkFiles).length){ toast("Pick at least one file first","warn"); return; }
+        let online;
+        try{ online = await client.getOnlineSources(); }
+        catch(e){ toast("Online error: "+e.message,"error"); return; }
+        if(!online.length){ toast("No online PCs","error"); return; }
+
+        const nPcs = online.length;
+        const mode = ($("[data-role=bulkMode]:checked",host)||{}).value||"even";
+        let rowsPerPc = null;
+        if(mode==="per_rows"){
+          rowsPerPc = parseInt($("[data-role=bulkRowsPerPc]",host).value)||null;
+          if(rowsPerPc!=null && rowsPerPc<=0) rowsPerPc = null;
+        }
+
+        bulkStatus.textContent = "⏳ Uploading…";
+        log(`📦 Bulk push starting to ${nPcs} online PC(s)…`,"info");
+
+        const summary = [];
+        for(const [slot,rec] of Object.entries(state.bulkFiles)){
+          const sameCb = $(`[data-same="${slot}"]`,host);
+          const sameToAll = sameCb ? sameCb.checked : !SPLITTABLE_SLOTS.has(slot);
+
+          try{
+            if(sameToAll || !SPLITTABLE_SLOTS.has(slot)){
+              for(const s of online){
+                try{
+                  await client.deleteFile(s.source_id,slot).catch(()=>{});
+                  await client.upsertFile(s.source_id,slot,rec.filename,rec.content);
+                  await client.sendCommand(s.source_id,"reload",{slot}).catch(()=>{});
+                }catch(e){ summary.push(`❌ ${slot} → ${s.source_id}: ${e.message}`); }
+              }
+              summary.push(`✅ ${slot}: same file → ${nPcs} PC(s)`);
+            }else{
+              const parts = (slot==="test_email")
+                ? splitTxtContent(rec.content,nPcs,rowsPerPc)
+                : splitCsvContent(rec.content,nPcs,rowsPerPc);
+              for(let i=0;i<online.length && i<parts.length;i++){
+                const s = online[i];
+                try{
+                  await client.deleteFile(s.source_id,slot).catch(()=>{});
+                  await client.upsertFile(s.source_id,slot,rec.filename,parts[i]);
+                  await client.sendCommand(s.source_id,"reload",{slot}).catch(()=>{});
+                }catch(e){ summary.push(`❌ ${slot} → ${s.source_id}: ${e.message}`); }
+              }
+              summary.push(`✅ ${slot}: split into ${parts.length} part(s) across ${Math.min(parts.length,nPcs)} PC(s)`);
+            }
+          }catch(e){
+            summary.push(`❌ ${slot}: ${e.message}`);
+          }
+        }
+        bulkStatus.textContent = "✅ Done";
+        summary.forEach(line=>log(line,line.startsWith("✅")?"success":"error"));
+        toast("Bulk upload complete","success");
+      });
+      $("[data-act=bulkClear]",host).addEventListener("click",()=>{
+        Object.keys(state.bulkFiles).forEach(slot=>{
+          delete state.bulkFiles[slot];
+          const info = $(`[data-bulkinfo="${slot}"]`,host);
+          if(info) info.textContent = "(no file)";
+        });
+        bulkStatus.textContent = "";
+      });
+    }
+
+    $("[data-act=dlToday]",host).addEventListener("click",()=>{ $("[data-role=dlDate]",host).value = todayStr(); });
+    $("[data-act=dlYesterday]",host).addEventListener("click",()=>{ $("[data-role=dlDate]",host).value = yesterdayStr(); });
+
+    async function saveRecords(fetchFn,label,scope){
+      const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+      const filename = `${safeFilename(label)}_${safeFilename(scope)}_${stamp}.csv`;
+      try{
+        const records = await fetchFn();
+        downloadCsv(filename,records||[]);
+        log(`⬇ Saved ${records.length} records → ${filename}`,"success");
+        toast(`${records.length} records saved`,"success");
+      }catch(e){ log("Download error: "+e.message,"error"); toast("Download error: "+e.message,"error"); }
+    }
+
+    $("[data-act=dlLive]",host).addEventListener("click",async()=>{
+      let y,m,d;
+      try{ [y,m,d]=parseDateOrThrow($("[data-role=dlDate]",host).value); }
+      catch(e){ toast(e.message,"error"); return; }
+      const ds = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      if(scopeKind==="single") saveRecords(()=>client.getLiveForDateAndSource(y,m,d,scopeSourceId),`LIVE-${ds}`,scopeSourceId);
+      else                     saveRecords(()=>client.getLiveForDate(y,m,d),`LIVE-${ds}`,"ALL");
+    });
+    $("[data-act=dlArchive]",host).addEventListener("click",async()=>{
+      let y,m,d;
+      try{ [y,m,d]=parseDateOrThrow($("[data-role=dlDate]",host).value); }
+      catch(e){ toast(e.message,"error"); return; }
+      const ds = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      const sid = scopeKind==="single" ? scopeSourceId : null;
+      saveRecords(()=>client.getArchiveForDate(y,m,d,sid),`ARCHIVE-${ds}`,sid||"ALL");
+    });
+    $("[data-act=dlSaveAll]",host).addEventListener("click",async()=>{
+      let y,m,d;
+      try{ [y,m,d]=parseDateOrThrow($("[data-role=dlDate]",host).value); }
+      catch(e){ toast(e.message,"error"); return; }
+      const ds = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      if(scopeKind==="single"){
+        const sid = scopeSourceId;
+        saveRecords(async()=>{
+          const live = await client.getLiveForDateAndSource(y,m,d,sid);
+          const arch = await client.getArchiveForDate(y,m,d,sid);
+          return (live||[]).concat(arch||[]);
+        },`SAVE-ALL-${ds}`,sid);
+      }else{
+        saveRecords(async()=>{
+          const live = await client.getLiveForDate(y,m,d);
+          const arch = await client.getArchiveForDate(y,m,d,null);
+          return (live||[]).concat(arch||[]);
+        },`SAVE-ALL-${ds}`,"ALL");
+      }
+    });
+
+    host._cleanup = ()=>{ if(state.intervalId) clearInterval(state.intervalId); };
+  }
+
+  /* ============================================================
+     PC WINDOW (modal)
+     ============================================================ */
+  function openPcWindow(sourceId,computerName,project,client){
+    openModal(`
+      <div class="modal-head" style="background:var(--bg-header);border-radius:var(--r-lg) var(--r-lg) 0 0;">
+        <div>
+          <h3 style="font-size:15px;">🖥 ${escapeHtml(computerName)}</h3>
+          <div class="small muted mono" style="margin-top:2px;">${escapeHtml(sourceId)}</div>
+        </div>
+        <button class="close-x" data-act="close">×</button>
+      </div>
+      <div class="modal-body" style="padding-top:12px;">
+        <div id="pcAutomationHost"></div>
+      </div>
+    `,{width:"900px"});
+    const host = $("#pcAutomationHost");
+    buildOutlookAutomation(host,{
+      project,client,
+      scopeKind:"single",
+      scopeSourceId:sourceId,
+      titleText:`Outlook Group Automation — ${computerName}`,
+    });
+    const box = $("#modalBox");
+    const closer = ()=>{ if(host._cleanup) host._cleanup(); closeModal(); };
+    $$("[data-act=close]",box).forEach(b=>b.addEventListener("click",closer));
+  }
+
+  function openMasterPanel(project,client){
+    openModal(`
+      <div class="modal-head" style="background:var(--bg-header);border-radius:var(--r-lg) var(--r-lg) 0 0;">
+        <h3>🌐 MASTER — Controls ALL Online PCs</h3>
+        <button class="close-x" data-act="close">×</button>
+      </div>
+      <div class="modal-body" style="padding-top:12px;">
+        <div id="masterAutomationHost"></div>
+      </div>
+    `,{width:"980px"});
+    const host = $("#masterAutomationHost");
+    buildOutlookAutomation(host,{
+      project,client,
+      scopeKind:"master",
+      scopeSourceId:null,
+      titleText:"Outlook Group Automation — MASTER",
+    });
+    const box = $("#modalBox");
+    const closer = ()=>{ if(host._cleanup) host._cleanup(); closeModal(); };
+    $$("[data-act=close]",box).forEach(b=>b.addEventListener("click",closer));
+  }
+
+  /* ============================================================
+     LIVE EXTRACTOR PANEL
+     ============================================================ */
+  function buildLivePanel(panel,meta){
+    const project = meta.project;
+    const client = new SupabaseClient(project.url, project.service_key||project.anon_key);
+    const state = { viewMode:"today", rows:[] };
+
+    panel.innerHTML = `
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> 📊 Live Extractor — Today's Live + Date Archive</div>
+        <div class="small muted mono" style="word-break:break-all;">${escapeHtml(project.url)}</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> 📅 Date Filter</div>
+        <div class="row" style="margin-bottom:10px;">
+          <button class="btn green sm" data-act="loadToday">🟢 LIVE (Today + Online)</button>
+          <span class="muted">│</span>
+          <label class="small">Date:</label>
+          <input type="text" data-role="date" value="${todayStr()}" style="width:130px;min-height:36px;padding:6px 10px;"/>
+          <button class="btn ghost sm" data-act="todayBtn">Today</button>
+          <button class="btn ghost sm" data-act="yesterdayBtn">Yesterday</button>
+          <button class="btn primary sm" data-act="loadDate">🔎 View Date</button>
+        </div>
+        <div class="row">
+          <label class="small">Available dates:</label>
+          <select data-role="datesCombo" style="min-width:180px;min-height:36px;padding:6px 10px;">
+            <option value="">Loading…</option>
+          </select>
+          <button class="btn ghost sm" data-act="refreshDates">↻ Refresh</button>
+          <span class="right chip info" data-role="status">Ready</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> ⬇ Download Current View</div>
+        <div class="row">
+          <button class="btn green sm" data-act="saveCurrent">💾 SAVE CURRENT VIEW</button>
+          <button class="btn primary sm" data-act="saveLive">💾 SAVE LIVE (date)</button>
+          <button class="btn primary sm" data-act="saveArchive">💾 SAVE ARCHIVE (date)</button>
+          <button class="btn green sm" data-act="saveBoth">💾 SAVE BOTH (date)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> 📋 Data View (read-only)</div>
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead><tr>
+              <th>Computer</th><th>IP</th><th>Group</th>
+              <th>Email</th><th>Account</th><th>First Seen</th><th>Last Seen</th>
+            </tr></thead>
+            <tbody data-role="rows"><tr><td colspan="7" class="center muted small">Load something…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> 📝 Log</div>
+        <div class="log" data-role="log"></div>
+      </div>
+    `;
+
+    const logEl    = $("[data-role=log]",panel);
+    const rowsEl   = $("[data-role=rows]",panel);
+    const statusEl = $("[data-role=status]",panel);
+    const datesCombo = $("[data-role=datesCombo]",panel);
+    const log = (m,tag="info")=>pushLog(logEl,m,tag);
+
+    const sourceCache = {};
+
+    async function ensureSourceCache(){
+      try{
+        const srcs = await client.getSources();
+        (srcs||[]).forEach(s=>{
+          if(s.source_id) sourceCache[s.source_id] = s;
+        });
+      }catch(e){ /* silent */ }
+    }
+
+    function render(rows){
+      if(!rows||!rows.length){
+        rowsEl.innerHTML = `<tr><td colspan="7" class="center muted small">No rows.</td></tr>`;
+        return;
+      }
+      rowsEl.innerHTML = rows.slice(0,2000).map(r=>{
+        const src = sourceCache[r.source_id] || {};
+        const pubIp = safeTextAdmin(r.public_ip) || safeTextAdmin(src.public_ip) || "";
+        const locIp = safeTextAdmin(r.local_ip)  || safeTextAdmin(src.local_ip)  || "";
+        const ipText = pubIp && locIp ? `${pubIp} / ${locIp}` : (pubIp || locIp || "—");
+        return `
+        <tr>
+          <td class="small">${escapeHtml(r.computer_name||src.computer_name||"Unknown")}</td>
+          <td class="mono small">${escapeHtml(ipText)}</td>
+          <td class="small">${escapeHtml(r.group_name||"")}</td>
+          <td class="small">${escapeHtml(r.group_email||"")}</td>
+          <td class="small">${escapeHtml(r.account||"")}</td>
+          <td class="small">${escapeHtml(r.first_seen||r.snapshot_at||"")}</td>
+          <td class="small">${escapeHtml(r.last_seen||r.snapshot_at||"")}</td>
+        </tr>`;
+      }).join("");
+      if(rows.length>2000){
+        rowsEl.innerHTML += `<tr><td colspan="7" class="center muted small">Showing first 2000 of ${rows.length} rows. Use Save to export all.</td></tr>`;
+      }
+    }
+
+    async function loadToday(){
+      statusEl.textContent = "Loading live…";
+      log("🟢 Loading LIVE view (today + online)…","info");
+      try{
+        const [online, rows] = await Promise.all([
+          client.getOnlineSources(),
+          client.getLiveToday(),
+        ]);
+        await ensureSourceCache();
+        const ids = new Set((online||[]).map(s=>s.source_id));
+        const filtered = (rows||[]).filter(r=>ids.has(r.source_id));
+        state.viewMode = "today"; state.rows = filtered;
+        render(filtered);
+        statusEl.textContent = `LIVE (today): ${filtered.length} rows from ${online.length} online PCs`;
+        log(statusEl.textContent,"success");
+      }catch(e){
+        statusEl.textContent = "Error: "+e.message;
+        log("Load today failed: "+e.message,"error");
+      }
+    }
+
+    async function loadDate(){
+      let y,m,d;
+      try{ [y,m,d] = parseDateOrThrow($("[data-role=date]",panel).value); }
+      catch(e){ toast(e.message,"error"); return; }
+      const ds = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      statusEl.textContent = `Loading ${ds}…`;
+      log(`🔎 Loading all data for date: ${ds}`,"info");
+      try{
+        const [live, arch] = await Promise.all([
+          client.getLiveForDate(y,m,d),
+          client.getArchiveForDate(y,m,d,null),
+        ]);
+        await ensureSourceCache();
+        const rows = (live||[]).concat(arch||[]);
+        state.viewMode = "dated"; state.rows = rows;
+        render(rows);
+        statusEl.textContent = `DATED ${ds}: ${rows.length} total (live=${live.length}, archive=${arch.length})`;
+        log(statusEl.textContent,"success");
+      }catch(e){
+        statusEl.textContent = "Error: "+e.message;
+        log("Load date failed: "+e.message,"error");
+      }
+    }
+
+    async function refreshDates(){
+      try{
+        const dates = await client.getAvailableDates();
+        datesCombo.innerHTML = dates.length
+          ? `<option value="">(select a date)</option>`+dates.map(d=>`<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join("")
+          : `<option value="">(none)</option>`;
+        if(dates.length) log(`Found ${dates.length} archive date(s)`,"success");
+      }catch(e){ log("Failed to load dates: "+e.message,"error"); }
+    }
+
+    datesCombo.addEventListener("change",()=>{
+      if(datesCombo.value){
+        $("[data-role=date]",panel).value = datesCombo.value;
+        loadDate();
+      }
+    });
+
+    async function saveRows(rows,label){
+      if(!rows||!rows.length){ toast("No rows to save","warn"); return; }
+      const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+      downloadCsv(`${safeFilename(label)}_${stamp}.csv`,rows);
+      log(`💾 Saved ${rows.length} rows → ${label}`,"success");
+      toast(`${rows.length} rows saved`,"success");
+    }
+
+    $("[data-act=loadToday]",panel).addEventListener("click",loadToday);
+    $("[data-act=todayBtn]",panel).addEventListener("click",()=>{$("[data-role=date]",panel).value=todayStr();});
+    $("[data-act=yesterdayBtn]",panel).addEventListener("click",()=>{$("[data-role=date]",panel).value=yesterdayStr();});
+    $("[data-act=loadDate]",panel).addEventListener("click",loadDate);
+    $("[data-act=refreshDates]",panel).addEventListener("click",refreshDates);
+
+    $("[data-act=saveCurrent]",panel).addEventListener("click",()=>{
+      if(!state.rows.length){ toast("Load data first","warn"); return; }
+      const label = state.viewMode==="today" ? "LIVE-TODAY" : `DATED-${$("[data-role=date]",panel).value.trim()}`;
+      saveRows(state.rows,label);
+    });
+    $("[data-act=saveLive]",panel).addEventListener("click",async()=>{
+      let y,m,d;
+      try{ [y,m,d]=parseDateOrThrow($("[data-role=date]",panel).value); }
+      catch(e){ toast(e.message,"error"); return; }
+      const ds = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      try{ const rows = await client.getLiveForDate(y,m,d); saveRows(rows,`LIVE-${ds}`); }
+      catch(e){ log("Save live failed: "+e.message,"error"); }
+    });
+    $("[data-act=saveArchive]",panel).addEventListener("click",async()=>{
+      let y,m,d;
+      try{ [y,m,d]=parseDateOrThrow($("[data-role=date]",panel).value); }
+      catch(e){ toast(e.message,"error"); return; }
+      const ds = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      try{ const rows = await client.getArchiveForDate(y,m,d,null); saveRows(rows,`ARCHIVE-${ds}`); }
+      catch(e){ log("Save archive failed: "+e.message,"error"); }
+    });
+    $("[data-act=saveBoth]",panel).addEventListener("click",async()=>{
+      let y,m,d;
+      try{ [y,m,d]=parseDateOrThrow($("[data-role=date]",panel).value); }
+      catch(e){ toast(e.message,"error"); return; }
+      const ds = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      try{
+        const live = await client.getLiveForDate(y,m,d);
+        const arch = await client.getArchiveForDate(y,m,d,null);
+        saveRows((live||[]).concat(arch||[]),`BOTH-${ds}`);
+      }catch(e){ log("Save both failed: "+e.message,"error"); }
+    });
+
+    loadToday();
+    refreshDates();
+  }
+
+  /* ============================================================
+     ADD DB PANEL
+     ============================================================ */
+  function buildAddDbPanel(panel,tab){
+    panel.innerHTML = `
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> Add Supabase Project</div>
+        <div class="small muted" style="margin-bottom:10px;">
+          Enter connection details. Supply the SERVICE ROLE key.
+        </div>
+        <label class="field"><span>Display Name</span>
+          <input type="text" data-f="name" placeholder="My Project"/>
+        </label>
+        <label class="field"><span>Project ID</span>
+          <input type="text" data-f="pid" placeholder="auto from URL if empty"/>
+        </label>
+        <label class="field"><span>Supabase URL</span>
+          <input type="text" data-f="url" placeholder="https://xxxx.supabase.co"/>
+        </label>
+        <label class="field"><span>Service Role Key (secret)</span>
+          <input type="password" data-f="skey" placeholder="service_role key"/>
+        </label>
+        <label class="field"><span>Anon Key (optional)</span>
+          <input type="password" data-f="akey" placeholder="anon key"/>
+        </label>
+        <div class="row" style="margin-top:12px;">
+          <button class="btn green sm" data-act="save">🧪 Test &amp; Save</button>
+          <button class="btn ghost sm" data-act="clear">Clear</button>
+          <span class="small" data-role="status" style="color:var(--online);"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span> Saved Projects</div>
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead><tr><th>Name</th><th>Project ID</th><th>URL</th></tr></thead>
+            <tbody data-role="projectRows"></tbody>
+          </table>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn ghost sm" data-act="refresh">↻ Refresh List</button>
+          <span class="small muted right">localStorage: ${escapeHtml(PROJECTS_KEY)}</span>
+        </div>
+      </div>
+    `;
+
+    const statusEl = $("[data-role=status]",panel);
+    const rowsEl   = $("[data-role=projectRows]",panel);
+
+    function refreshList(){
+      if(!State.projects.length){
+        rowsEl.innerHTML = `<tr><td colspan="3" class="center muted small">No projects.</td></tr>`;
+        return;
+      }
+      rowsEl.innerHTML = State.projects.map(p=>`
+        <tr>
+          <td>${escapeHtml(p.name||"")}</td>
+          <td class="mono small">${escapeHtml(p.project_id||"")}</td>
+          <td class="small mono" style="max-width:340px;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.url||"")}</td>
+        </tr>`).join("");
+    }
+    refreshList();
+
+    $("[data-act=clear]",panel).addEventListener("click",()=>{
+      $$("input[data-f]",panel).forEach(i=>i.value="");
+      statusEl.textContent = "";
+    });
+    $("[data-act=refresh]",panel).addEventListener("click",refreshList);
+
+    $("[data-act=save]",panel).addEventListener("click",async()=>{
+      const name = $("[data-f=name]",panel).value.trim();
+      const pidIn= $("[data-f=pid]",panel).value.trim();
+      let url    = $("[data-f=url]",panel).value.trim();
+      const skey = $("[data-f=skey]",panel).value.trim();
+      const akey = $("[data-f=akey]",panel).value.trim();
+
+      if(!url){ statusEl.textContent="❌ URL required"; statusEl.style.color="var(--offline)"; return; }
+      if(!skey && !akey){ statusEl.textContent="❌ Service key or Anon key required"; statusEl.style.color="var(--offline)"; return; }
+      if(!/^https?:/.test(url)) url = "https://"+url;
+      url = url.replace(/\/+$/,"");
+      const pid = pidIn || url.replace(/^https?:\/\//,"").split(".")[0];
+      const nm  = name || pid;
+
+      statusEl.style.color = "var(--text-secondary)";
+      statusEl.textContent = "⏳ Testing…";
+
+      try{
+        const test = new SupabaseClient(url, skey||akey);
+        await test.rest("extractor_sources",{query:{select:"source_id",limit:"1"}});
+        statusEl.textContent = "✅ Connected";
+        statusEl.style.color = "var(--online)";
+      }catch(e){
+        statusEl.textContent = "⚠ Test failed: "+e.message;
+        statusEl.style.color = "var(--expiring-soon)";
+        const go = await confirmModal("Connection Failed",`${e.message}\n\nSave anyway?`,{okText:"Save anyway"});
+        if(!go) return;
+      }
+
+      const project = {
+        name: nm, url, service_key: skey||akey,
+        anon_key: akey||skey, project_id: pid,
+      };
+      State.projects.push(project);
+      saveProjects();
+      openProjectTab(project);
+      statusEl.textContent = `✅ '${nm}' saved.`;
+      statusEl.style.color = "var(--online)";
+      $$("input[data-f]",panel).forEach(i=>i.value="");
+      refreshList();
+      toast("Project added","success");
+    });
+  }
+
+  /* ============================================================
+     OPEN PROJECT TAB
+     ============================================================ */
+  function openProjectTab(project){
+    const id = "proj_"+uid();
+    const title = project.name || project.project_id || "Project";
+    addTab({id,title:title+" · 🖥 PCs",type:"pc-list",meta:{project}});
+    addTab({id:id+"_live",title:title+" · 📊 Live",type:"live",meta:{project}});
+    switchTab(id);
+  }
+
+  /* ============================================================
+     LUNAR PANEL
+     ============================================================ */
+  function buildLunarPanel(panel,tab){
+    const supabaseLunar = new SupabaseClient(DEFAULTS.lunarUrl, DEFAULTS.lunarAdminKey);
+    const state = {
+      devices:{}, licenses:{},
+      expandedDevices:new Set(), expandedLicenses:new Set(),
+      autoDeleted:new Set(),
+      pollers:[],
+    };
+
+    panel.innerHTML = `
+      <div class="card" style="background:linear-gradient(135deg,#0d1017,#181c25);border-color:#232a36;">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-size:22px;font-weight:900;letter-spacing:-.5px;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">LUNAR</div>
+            <div class="small muted">Administrator Control Panel</div>
+          </div>
+          <div class="right flex" style="gap:6px;flex-wrap:wrap;">
+            <span class="chip online">Online: <span data-role="onlineCount">0</span></span>
+            <button class="btn purple sm" data-act="showAllScreens">🖥 SHOW ALL SCREENS</button>
+            <button class="btn orange sm" data-act="closeAllScreens">🛑 CLOSE ALL SCREENS</button>
+            <button class="btn green sm"  data-act="loginAll">LOGIN ALL</button>
+            <button class="btn red sm"    data-act="logoutAll">LOGOUT ALL</button>
+            <button class="btn wipe sm"   data-act="wipeAll">☠ WIPE ALL</button>
+            <button class="btn ghost sm"  data-act="refresh">REFRESH</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabsbar" style="background:transparent;padding-left:0;padding-right:0;">
+        <div class="tab active" data-ltab="computers">🖥 LIVE COMPUTERS</div>
+        <div class="tab" data-ltab="licenses">🔑 LICENSES</div>
+        <div class="tab" data-ltab="log">📜 LOG</div>
+      </div>
+
+      <div data-lpanel="computers">
+        <div id="lunarDevicesHost"></div>
+      </div>
+      <div data-lpanel="licenses" style="display:none;">
+        <div class="card">
+          <div class="row">
+            <button class="btn green sm" data-act="createLicense">➕ CREATE NEW LICENSE</button>
+            <button class="btn orange sm" data-act="removeExpired">🧹 REMOVE EXPIRED</button>
+            <span class="right small" data-role="licenseStats"></span>
+          </div>
+        </div>
+        <div id="lunarLicensesHost"></div>
+      </div>
+      <div data-lpanel="log" style="display:none;">
+        <div class="card">
+          <div class="card-title"><span class="dot"></span> 📜 Log</div>
+          <div class="log" data-role="log"></div>
+        </div>
+      </div>
+    `;
+
+    const devicesHost = $("#lunarDevicesHost",panel);
+    const licensesHost = $("#lunarLicensesHost",panel);
+    const logEl = $("[data-role=log]",panel);
+    const onlineCountEl = $("[data-role=onlineCount]",panel);
+    const licenseStatsEl = $("[data-role=licenseStats]",panel);
+
+    function log(msg,tag="info"){ pushLog(logEl,msg,tag); }
+
+    $$("[data-ltab]",panel).forEach(t=>t.addEventListener("click",()=>{
+      $$("[data-ltab]",panel).forEach(x=>x.classList.remove("active"));
+      t.classList.add("active");
+      const which = t.dataset.ltab;
+      $$("[data-lpanel]",panel).forEach(p=>{
+        p.style.display = p.dataset.lpanel===which ? "" : "none";
+      });
+    }));
+
+    log("Lunar Admin started","success");
+
+    function lunarIsOnline(dev){
+      if(!dev) return false;
+      const v = dev.last_seen_at;
+      if(!v) return false;
+      const d = parseDatetime(v);
+      if(!d) return false;
+      return (Date.now() - d.getTime())/1000 <= DEFAULTS.lunarOnlineTimeout;
+    }
+    function licenseTimeLeft(item){
+      const exp = parseDatetime(item.expires_at);
+      if(!exp) return {status:"unknown",seconds:null,text:"No expiry"};
+      const secs = (exp.getTime()-Date.now())/1000;
+      if(secs<=0) return {status:"expired",seconds:secs,text:"EXPIRED "+humanizeSeconds(secs)+" ago"};
+      if(secs<86400) return {status:"expiring",seconds:secs,text:humanizeSeconds(secs)+" left"};
+      return {status:"active",seconds:secs,text:humanizeSeconds(secs)+" left"};
+    }
+
+    async function refreshData(){
+      try{
+        let devices=[], licenses=[];
+        try{
+          const r = await supabaseLunar.rest("lunar_devices",{query:{select:"*",order:"last_seen_at.desc"}});
+          devices = r.data||[];
+        }catch(e){ log("Device refresh error: "+e.message,"error"); }
+        try{
+          const r = await supabaseLunar.rest("lunar_licenses",{query:{select:"*",order:"created_at.desc"}});
+          licenses = r.data||[];
+        }catch(e){ log("License refresh error: "+e.message,"error"); }
+
+        const online = {};
+        (devices||[]).forEach(d=>{ if(lunarIsOnline(d) && safeTextAdmin(d.device_id)) online[d.device_id]=d; });
+
+        const licMap = {};
+        (licenses||[]).forEach(l=>{ if(safeTextAdmin(l.license_key)) licMap[l.license_key]=l; });
+
+        state.devices = online;
+        state.licenses = licMap;
+
+        renderDevices();
+        renderLicenses();
+        checkExpiredLicenses();
+      }catch(e){
+        log("Refresh failed: "+e.message,"error");
+      }
+    }
+
+    function renderDevices(){
+      onlineCountEl.textContent = Object.keys(state.devices).length;
+      if(!Object.keys(state.devices).length){
+        devicesHost.innerHTML = `<div class="empty"><div class="big">🖥</div>No online computers right now.<br/><span class="small">Start user.py on a computer and it will appear here.</span></div>`;
+        return;
+      }
+      devicesHost.innerHTML = "";
+      Object.values(state.devices)
+        .sort((a,b)=>safeTextAdmin(a.computer_name).toLowerCase().localeCompare(safeTextAdmin(b.computer_name).toLowerCase()))
+        .forEach(dev=>{
+          const id = safeTextAdmin(dev.device_id);
+          const card = document.createElement("div");
+          card.className = "device-card";
+          card.dataset.deviceId = id;
+          const expanded = state.expandedDevices.has(id);
+          const pubIp = safeTextAdmin(dev.public_ip) || "—";
+          const locIp = safeTextAdmin(dev.local_ip) || "—";
+          card.innerHTML = `
+            <div class="device-head">
+              <button class="btn ghost sm" data-act="toggle">${expanded?"▲":"▼"}</button>
+              <div>
+                <div class="name">${escapeHtml(safeTextAdmin(dev.computer_name)||"Unknown Computer")}</div>
+                <div class="meta">🌐 ${escapeHtml(pubIp)} · 🏠 ${escapeHtml(locIp)} · <span style="color:var(--online);font-weight:700;">● ONLINE</span></div>
+              </div>
+              <div class="device-actions">
+                <button class="btn green sm" data-act="login">LOGIN AUTO</button>
+                <button class="btn red sm"   data-act="logout">LOGOUT</button>
+                <button class="btn purple sm" data-act="screen">🖥 VIEW + CONTROL</button>
+                <button class="btn wipe sm"  data-act="wipe">☠ WIPE</button>
+              </div>
+            </div>
+            <div class="device-body ${expanded?"open":""}">
+              <div class="grid cols-2">
+                <div>
+                  <dl class="kv">
+                    <dt>License</dt><dd>${escapeHtml(safeTextAdmin(dev.license_key)||"Not logged in")}</dd>
+                    <dt>Public IP</dt><dd>${escapeHtml(pubIp)}</dd>
+                    <dt>Local IP</dt><dd>${escapeHtml(locIp)}</dd>
+                    <dt>Device ID</dt><dd>${escapeHtml(id)}</dd>
+                    <dt>Last Seen</dt><dd>${escapeHtml(formatLastSeen(dev.last_seen_at))}</dd>
+                    <dt>Command</dt><dd>${escapeHtml(safeTextAdmin(dev.command_status)||"—")} ${dev.command_message?("• "+escapeHtml(safeTextAdmin(dev.command_message))):""}</dd>
+                  </dl>
+                </div>
+                <div>
+                  <label class="field"><span>Login License</span>
+                    <select data-role="licenseSelect"></select>
+                  </label>
+                  <button class="btn primary sm block" data-act="loginWithSelected">LOGIN WITH SELECTED LICENSE</button>
+                </div>
+              </div>
+            </div>
+          `;
+          devicesHost.appendChild(card);
+
+          const sel = $("[data-role=licenseSelect]",card);
+          const active = Object.entries(state.licenses)
+            .filter(([k,v])=>v.is_active && licenseTimeLeft(v).status!=="expired")
+            .map(([k])=>k);
+          sel.innerHTML = active.length
+            ? active.map(k=>`<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join("")
+            : `<option value="">(no active license)</option>`;
+          if(safeTextAdmin(dev.license_key)) sel.value = safeTextAdmin(dev.license_key);
+
+          $$("button[data-act]",card).forEach(b=>{
+            b.addEventListener("click",async ()=>{
+              const act = b.dataset.act;
+              if(act==="toggle"){
+                if(state.expandedDevices.has(id)) state.expandedDevices.delete(id);
+                else state.expandedDevices.add(id);
+                renderDevices();
+              }
+              if(act==="login") await sendDeviceCommand(id,"login",sel.value||safeTextAdmin(dev.license_key));
+              if(act==="loginWithSelected") await sendDeviceCommand(id,"login",sel.value||"");
+              if(act==="logout") await sendDeviceCommand(id,"logout","");
+              if(act==="screen") await openScreenViewer(id,safeTextAdmin(dev.computer_name));
+              if(act==="wipe") await wipeComputer(id,safeTextAdmin(dev.computer_name));
+            });
+          });
+        });
+    }
+
+    function renderLicenses(){
+      let total=0,active=0,expiring=0,expired=0;
+      Object.values(state.licenses).forEach(l=>{
+        total++;
+        const s = licenseTimeLeft(l).status;
+        if(s==="active")active++; else if(s==="expiring")expiring++; else if(s==="expired")expired++;
+      });
+      licenseStatsEl.textContent = `Total: ${total}   Active: ${active}   Expiring: ${expiring}   Expired: ${expired}`;
+
+      if(!total){
+        licensesHost.innerHTML = `<div class="empty"><div class="big">🔑</div>No licenses yet.<br/><span class="small">Click '➕ CREATE NEW LICENSE' to add one.</span></div>`;
+        return;
+      }
+
+      licensesHost.innerHTML = "";
+      Object.entries(state.licenses).forEach(([key,item])=>{
+        const expanded = state.expandedLicenses.has(key);
+        const card = document.createElement("div");
+        card.className = "license-card";
+        const tl = licenseTimeLeft(item);
+        const isActive = !!item.is_active;
+        const statusChip = tl.status==="expired"
+          ? `<span class="chip expired">EXPIRED</span>`
+          : !isActive ? `<span class="chip offline">RESTRICTED</span>`
+          : tl.status==="expiring" ? `<span class="chip warn">EXPIRING</span>`
+          : `<span class="chip online">ACTIVE</span>`;
+
+        card.innerHTML = `
+          <div class="license-head">
+            <button class="btn ghost sm" data-act="toggle">${expanded?"▲":"▼"}</button>
+            <div>
+              <div class="mono" style="font-weight:800;">${escapeHtml(key)}</div>
+              <div class="small muted">${escapeHtml(tl.text)}</div>
+            </div>
+            ${statusChip}
+            <div class="device-actions">
+              <button class="btn green sm" data-act="activate">ACTIVATE</button>
+              <button class="btn orange sm" data-act="restrict">RESTRICT</button>
+              <button class="btn primary sm" data-act="edit">✏ EDIT</button>
+              <button class="btn cyan sm" data-act="renew">🔄 RENEW</button>
+              <button class="btn wipe sm" data-act="delete">DELETE</button>
+            </div>
+          </div>
+          <div class="license-body ${expanded?"open":""}">
+            <div class="grid cols-3">
+              <div class="stat"><div class="l">Created</div><div class="v" style="font-size:13px;">${escapeHtml(formatLastSeen(item.created_at))}</div></div>
+              <div class="stat"><div class="l">Updated</div><div class="v" style="font-size:13px;">${escapeHtml(formatLastSeen(item.updated_at))}</div></div>
+              <div class="stat"><div class="l">Expires</div><div class="v" style="font-size:13px;">${escapeHtml(formatLastSeen(item.expires_at))}</div></div>
+            </div>
+            <div class="sep"></div>
+            <div class="small muted">Notes</div>
+            <div style="margin-top:4px;font-size:13px;">${escapeHtml(safeTextAdmin(item.notes)||"—")}</div>
+          </div>
+        `;
+        licensesHost.appendChild(card);
+
+        $$("button[data-act]",card).forEach(b=>{
+          b.addEventListener("click",async ()=>{
+            const act = b.dataset.act;
+            if(act==="toggle"){
+              if(state.expandedLicenses.has(key)) state.expandedLicenses.delete(key);
+              else state.expandedLicenses.add(key);
+              renderLicenses();
+            }
+            if(act==="activate") await setLicenseActive(key,true);
+            if(act==="restrict") await setLicenseActive(key,false);
+            if(act==="edit"||act==="renew") openLicenseDialog("edit",item);
+            if(act==="delete") await deleteLicense(key);
+          });
+        });
+      });
+    }
+
+    function openLicenseDialog(mode,licenseItem){
+      const isEdit = mode==="edit";
+      licenseItem = licenseItem||{};
+      openModal(`
+        <div class="modal-head">
+          <h3>${isEdit?"Edit License":"Create License"}</h3>
+          <button class="close-x" data-act="cancel">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="card" style="margin-bottom:12px;">
+            <div class="card-title"><span class="dot"></span> License Key</div>
+            <input type="text" id="dlgKey" class="mono" style="font-weight:800;" value="${escapeHtml(isEdit?safeTextAdmin(licenseItem.license_key):"")}" ${isEdit?"disabled":""}/>
+            <div class="row" style="margin-top:8px;">
+              <label class="small">Prefix:</label>
+              <input type="text" id="dlgPrefix" value="LUNAR" style="width:100px;min-height:34px;padding:6px 8px;"/>
+              <label class="small">Groups:</label>
+              <input type="number" id="dlgGroups" value="3" style="width:70px;min-height:34px;padding:6px 8px;"/>
+              <label class="small">Len:</label>
+              <input type="number" id="dlgLen" value="6" style="width:70px;min-height:34px;padding:6px 8px;"/>
+              <button class="btn primary sm" data-act="gen">AUTO-GENERATE</button>
+              <button class="btn ghost sm" data-act="rnd">RANDOM</button>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:12px;">
+            <div class="card-title"><span class="dot"></span> Expiry Date &amp; Time (local)</div>
+            <input type="text" id="dlgExp" class="mono" placeholder="YYYY-MM-DD HH:MM"/>
+            <div class="row" style="margin-top:8px;">
+              <span class="small muted">Quick set:</span>
+              ${[["+1h",1],["+6h",6],["+1d",24],["+7d",168],["+30d",720],["+1y",8760]].map(([lbl,h])=>`<button class="btn ghost sm" data-quick="${h}">${lbl}</button>`).join("")}
+            </div>
+            <div class="small muted" style="margin-top:6px;">Format: YYYY-MM-DD HH:MM  (or DD-MM-YYYY HH:MM)</div>
+          </div>
+          <div class="card" style="margin-bottom:12px;">
+            <div class="card-title"><span class="dot"></span> Notes / Description</div>
+            <textarea id="dlgNotes" style="min-height:70px;">${escapeHtml(safeTextAdmin(licenseItem.notes))}</textarea>
+          </div>
+          <label class="flex"><input type="checkbox" id="dlgActive" ${isEdit?(licenseItem.is_active?"checked":""):"checked"}/> License is ACTIVE</label>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" data-act="cancel">Cancel</button>
+          <button class="btn green" data-act="save">${isEdit?"SAVE CHANGES":"CREATE LICENSE"}</button>
+        </div>
+      `,{width:"560px"});
+
+      const box = $("#modalBox");
+      const keyEl = $("#dlgKey",box);
+      const prefixEl = $("#dlgPrefix",box);
+      const groupsEl = $("#dlgGroups",box);
+      const lenEl = $("#dlgLen",box);
+      const expEl = $("#dlgExp",box);
+      const notesEl = $("#dlgNotes",box);
+      const activeEl = $("#dlgActive",box);
+
+      function quickSet(hours){
+        const t = new Date(Date.now()+hours*3600*1000);
+        const p=n=>String(n).padStart(2,"0");
+        expEl.value = `${t.getFullYear()}-${p(t.getMonth()+1)}-${p(t.getDate())} ${p(t.getHours())}:${p(t.getMinutes())}`;
+      }
+      if(isEdit){
+        const exp = parseDatetime(licenseItem.expires_at);
+        if(exp){
+          const p=n=>String(n).padStart(2,"0");
+          expEl.value = `${exp.getFullYear()}-${p(exp.getMonth()+1)}-${p(exp.getDate())} ${p(exp.getHours())}:${p(exp.getMinutes())}`;
+        }
+      }else{
+        keyEl.value = generateLicenseKey("LUNAR",3,6);
+        quickSet(24);
+      }
+
+      $$("[data-act]",box).forEach(b=>{
+        b.addEventListener("click",async ()=>{
+          const act = b.dataset.act;
+          if(act==="cancel"){ closeModal(); return; }
+          if(act==="gen"){
+            keyEl.value = generateLicenseKey(prefixEl.value,groupsEl.value,lenEl.value);
+          }
+          if(act==="rnd"){
+            prefixEl.value = ["LUNAR","STAR","NOVA","ORBIT","MOON","COMET"][Math.floor(Math.random()*6)];
+            groupsEl.value = [3,4,5][Math.floor(Math.random()*3)];
+            lenEl.value = [4,5,6,8][Math.floor(Math.random()*4)];
+            keyEl.value = generateLicenseKey(prefixEl.value,groupsEl.value,lenEl.value);
+          }
+          if(act==="save"){
+            const key = keyEl.value.trim();
+            if(!key){ toast("License key cannot be empty","error"); return; }
+            let dt;
+            try{ dt = parseUserDatetime(expEl.value); }
+            catch(e){ toast(e.message,"error"); return; }
+            const payload = {
+              license_key:key,
+              expires_at: dt.toISOString(),
+              notes: notesEl.value.trim(),
+              is_active: activeEl.checked,
+            };
+            closeModal();
+            if(isEdit) await updateLicenseWorker(payload);
+            else await createLicenseWorker(payload);
+          }
+        });
+      });
+      $$("[data-quick]",box).forEach(b=>{
+        b.addEventListener("click",()=>quickSet(parseInt(b.dataset.quick)));
+      });
+    }
+
+    async function createLicenseWorker(payload){
+      if(state.licenses[payload.license_key]){
+        toast("A license with this key already exists","warn");
+        return;
+      }
+      const row = Object.assign({},payload,{
+        created_at:isoNow(), updated_at:isoNow(),
+        notes: payload.notes || "Created by Lunar Admin"
+      });
+      try{
+        await supabaseLunar.rest("lunar_licenses",{method:"POST",prefer:"return=representation",body:row});
+        log(`License created: ${payload.license_key} (expires ${formatLastSeen(payload.expires_at)})`,"success");
+        state.autoDeleted.delete(payload.license_key);
+        refreshData();
+        toast("License created","success");
+      }catch(e){ log("License creation error: "+e.message,"error"); toast(e.message,"error"); }
+    }
+    async function updateLicenseWorker(payload){
+      try{
+        await supabaseLunar.rest("lunar_licenses",{
+          method:"PATCH",
+          query:{license_key:`eq.${payload.license_key}`},
+          prefer:"return=representation",
+          body:{is_active:payload.is_active, notes:payload.notes, expires_at:payload.expires_at, updated_at:isoNow()}
+        });
+        log(`License updated: ${payload.license_key} (new expiry ${formatLastSeen(payload.expires_at)})`,"success");
+        state.autoDeleted.delete(payload.license_key);
+        refreshData();
+        toast("License updated","success");
+      }catch(e){ log("License update error: "+e.message,"error"); toast(e.message,"error"); }
+    }
+
+    async function setLicenseActive(key,active){
+      try{
+        await supabaseLunar.rest("lunar_licenses",{
+          method:"PATCH", query:{license_key:`eq.${key}`},
+          prefer:"return=representation",
+          body:{is_active:!!active, updated_at:isoNow()}
+        });
+        log(`License ${active?"activate":"restrict"}: ${key}`,"success");
+        if(active) state.autoDeleted.delete(key);
+        if(!active){
+          for(const d of Object.values(state.devices)){
+            if(safeTextAdmin(d.license_key)===key) await sendDeviceCommand(safeTextAdmin(d.device_id),"logout","");
+          }
+        }
+        refreshData();
+      }catch(e){ log("License error: "+e.message,"error"); toast(e.message,"error"); }
+    }
+
+    async function deleteLicense(key){
+      const ok = await confirmModal("Delete License",`Delete this license?\n\n${key}\n\nThis cannot be undone.`,{danger:true,okText:"Delete"});
+      if(!ok) return;
+      await deleteLicenseWorker(key);
+    }
+
+    async function deleteLicenseWorker(key){
+      for(const d of Object.values(state.devices)){
+        if(safeTextAdmin(d.license_key)===key){
+          try{
+            await supabaseLunar.rest("lunar_devices",{
+              method:"PATCH", query:{device_id:`eq.${safeTextAdmin(d.device_id)}`},
+              prefer:"return=minimal",
+              body:{
+                license_key:null,
+                admin_command:"logout", admin_license_key:"",
+                command_id:makeCommandId(), command_created_at:isoNow(),
+                command_status:"pending", command_message:"License deleted",
+                updated_at:isoNow(),
+              }
+            });
+          }catch(e){ log("Device cleanup warning: "+e.message,"warning"); }
+        }
+      }
+      try{
+        await supabaseLunar.rest("lunar_licenses",{
+          method:"DELETE", query:{license_key:`eq.${key}`},
+          prefer:"return=representation"
+        });
+        log("License deleted: "+key,"success");
+        state.autoDeleted.delete(key);
+        refreshData();
+        toast("License deleted","success");
+      }catch(e){ log("License delete error: "+e.message,"error"); toast(e.message,"error"); }
+    }
+
+    async function removeExpiredLicenses(){
+      const expired = Object.entries(state.licenses)
+        .filter(([k,v])=>licenseTimeLeft(v).status==="expired")
+        .map(([k])=>k);
+      if(!expired.length){ toast("No expired licenses","info"); return; }
+      const ok = await confirmModal("Remove Expired",`Delete ${expired.length} expired license(s)?\n\nThis cannot be undone.`,{danger:true,okText:"Delete All"});
+      if(!ok) return;
+      for(const k of expired) await deleteLicenseWorker(k);
+    }
+
+    async function checkExpiredLicenses(){
+      for(const [key,item] of Object.entries(state.licenses)){
+        const tl = licenseTimeLeft(item);
+        if(tl.status!=="expired") continue;
+        if(state.autoDeleted.has(key)) continue;
+        state.autoDeleted.add(key);
+        const action = await confirmModal(
+          "License Expired",
+          `License has EXPIRED:\n\n${key}\n\nExpired at: ${formatLastSeen(item.expires_at)}\nNotes: ${safeTextAdmin(item.notes)||"(no notes)"}\n\nOK = Renew (edit now)\nCancel = Keep it inactive`,
+          {okText:"Renew",danger:false}
+        );
+        if(action){
+          openLicenseDialog("edit",item);
+        }else{
+          try{
+            await supabaseLunar.rest("lunar_licenses",{
+              method:"PATCH", query:{license_key:`eq.${key}`},
+              prefer:"return=minimal",
+              body:{is_active:false,updated_at:isoNow(),notes:"Expired"}
+            });
+            for(const d of Object.values(state.devices)){
+              if(safeTextAdmin(d.license_key)===key) await sendDeviceCommand(safeTextAdmin(d.device_id),"logout","");
+            }
+            log(`License auto-disabled: ${key}`,"warning");
+          }catch(e){ log("Auto-disable error: "+e.message,"error"); }
+        }
+      }
+    }
+
+    async function sendDeviceCommand(deviceId,command,licenseKey){
+      const dev = state.devices[deviceId];
+      if(!dev){ log("Device not found: "+deviceId,"error"); return; }
+      const name = safeTextAdmin(dev.computer_name);
+      const cmdId = makeCommandId();
+      const message = command==="login" ? "Login command sent"
+                    : command==="logout" ? "Logout command sent"
+                    : command==="wipe" ? "Wipe command sent"
+                    : "Unknown command";
+      const payload = {
+        admin_command: String(command),
+        admin_license_key: command==="login" ? String(licenseKey||"") : "",
+        command_id: cmdId,
+        command_created_at: isoNow(),
+        command_status:"pending",
+        command_message: message,
+        updated_at: isoNow(),
+      };
+      log(`${command.toUpperCase()} -> ${name} | cmd_id=${cmdId}`,"info");
+      try{
+        await supabaseLunar.rest("lunar_devices",{
+          method:"PATCH", query:{device_id:`eq.${deviceId}`},
+          prefer:"return=representation", body:payload
+        });
+        log(`Command sent: ${command.toUpperCase()} | ${name}`,"success");
+        setTimeout(refreshData,800);
+      }catch(e){
+        log(`COMMAND ERROR | ${command.toUpperCase()} | ${name} | ${e.message}`,"error");
+        toast("Command error: "+e.message,"error");
+      }
+    }
+
+    async function wipeComputer(deviceId,computerName){
+      let ok = await confirmModal(
+        "☠ WIPE COMPUTER — IRREVERSIBLE",
+        `You are about to PERMANENTLY DELETE everything on:\n\n  ${computerName}\n\n`+
+        `This will remove:\n  • Edge browser history\n  • Chrome history + cache\n  • Desktop files & folders\n`+
+        `  • Downloads folder contents\n  • Documents, Pictures, Videos, Music\n  • Temp files\n\n`+
+        `Files are NOT sent to Recycle Bin.\nThis CANNOT be undone.\n\nContinue?`,
+        {danger:true,okText:"Continue"}
+      );
+      if(!ok) return;
+      ok = await confirmModal("Final Confirmation",`Really wipe ${computerName}?\n\nThere is NO undo.`,{danger:true,okText:"WIPE NOW"});
+      if(!ok) return;
+      await sendDeviceCommand(deviceId,"wipe","");
+      log(`☠ WIPE command sent → ${computerName}`,"warning");
+    }
+
+    const screenWindows = {};
+
+    async function openScreenViewer(deviceId,computerName){
+      if(screenWindows[deviceId] && !screenWindows[deviceId].closed){
+        try{ screenWindows[deviceId].win.focus(); }catch(e){}
+        return;
+      }
+      const ok = await confirmModal("Start Screen View",
+        `Open live screen view for:\n\n${computerName||"Unknown Computer"}\n\nUser will NOT be notified.`,
+        {okText:"Open"});
+      if(!ok) return;
+      try{
+        await supabaseLunar.rpc("lunar_set_screen_view",{p_device_id:deviceId,p_active:true});
+        log(`Screen view ENABLED → ${computerName}`,"success");
+      }catch(e){ log("Screen enable error: "+e.message,"error"); }
+
+      buildScreenViewerWindow(deviceId,computerName);
+    }
+
+    function buildScreenViewerWindow(deviceId,computerName){
+      openModal(`
+        <div class="modal-head" style="background:var(--bg-header);border-radius:var(--r-lg) var(--r-lg) 0 0;">
+          <div>
+            <h3 style="font-size:15px;">🖥 ${escapeHtml(computerName||"Unknown")}</h3>
+            <div class="small muted mono" style="margin-top:2px;">${escapeHtml(deviceId)}</div>
+          </div>
+          <button class="close-x" data-act="close">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="row" style="margin-bottom:10px;">
+            <button class="btn purple sm" data-act="toggleControl">🎮 ENABLE REMOTE CONTROL</button>
+            <button class="btn cyan sm" data-act="sendClipboard">📋 SEND CLIPBOARD</button>
+            <button class="btn ghost sm" data-act="getClipboard">📥 GET CLIPBOARD</button>
+            <button class="btn ghost sm" data-act="sendText">⌨ SEND TEXT</button>
+            <span class="right chip" data-role="ctrlStatus">VIEW ONLY</span>
+          </div>
+          <div class="screen-canvas-wrap" data-role="canvasWrap">
+            <div class="muted" data-role="canvasMsg">Waiting for screen…</div>
+            <canvas data-role="canvas" style="display:none;"></canvas>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <span class="small muted" data-role="svStatus">Waiting for first frame…</span>
+            <span class="right small muted" data-role="clipStatus"></span>
+          </div>
+        </div>
+      `,{width:"96vw",className:"screen-modal"});
+      const box = $("#modalBox");
+      const canvas = $("[data-role=canvas]",box);
+      const canvasMsg = $("[data-role=canvasMsg]",box);
+      const ctrlStatusEl = $("[data-role=ctrlStatus]",box);
+      const svStatusEl = $("[data-role=svStatus]",box);
+      const clipStatusEl = $("[data-role=clipStatus]",box);
+
+      let control = false;
+      let lastFrameId = -1;
+      let lastClipboardId = 0;
+      let remoteW=1920, remoteH=1080;
+      let imgW=0, imgH=0;
+      let currentImg = null;
+      let intervalId = null, pollId=null;
+      let closed = false;
+
+      const ctx = canvas.getContext("2d");
+
+      function setStatus(t){ svStatusEl.textContent = t; }
+      function setClip(t){ clipStatusEl.textContent = t; setTimeout(()=>{if(!closed)clipStatusEl.textContent="";},4000); }
+
+      async function fetchFrame(){
+        if(closed) return;
+        try{
+          const r = await supabaseLunar.rest("lunar_devices",{
+            query:{select:"screen_storage_path,screen_frame_id,screen_view_active,screen_last_upload", device_id:`eq.${deviceId}`}
+          });
+          const rows = r.data;
+          if(!rows||!rows.length) return;
+          const row = rows[0];
+          if(!row.screen_view_active){ setStatus("Stream stopped by server"); return; }
+          const path = safeTextAdmin(row.screen_storage_path);
+          if(!path){ setStatus("Waiting for first frame…"); return; }
+          const fid = row.screen_frame_id||0;
+          if(fid===lastFrameId) return;
+          const url = `${DEFAULTS.lunarUrl}/storage/v1/object/public/${DEFAULTS.lunarBucket}/${path}?t=${Date.now()}`;
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = ()=>{
+            if(closed) return;
+            currentImg = img;
+            remoteW = img.naturalWidth; remoteH = img.naturalHeight;
+            lastFrameId = fid;
+            drawFrame();
+            setStatus("● LIVE • "+formatLastSeen(row.screen_last_upload));
+          };
+          img.onerror = ()=>{ /* silent */ };
+          img.src = url;
+        }catch(e){ /* silent */ }
+      }
+
+      function drawFrame(){
+        if(!currentImg) return;
+        canvasMsg.style.display = "none";
+        canvas.style.display = "";
+        const wrap = canvas.parentElement;
+        const availW = Math.max(wrap.clientWidth-4, 200);
+        const availH = Math.max(Math.min(window.innerHeight*0.7, 600), 200);
+        const scale = Math.min(availW/currentImg.naturalWidth, availH/currentImg.naturalHeight);
+        imgW = Math.round(currentImg.naturalWidth*scale);
+        imgH = Math.round(currentImg.naturalHeight*scale);
+        canvas.width  = imgW;
+        canvas.height = imgH;
+        canvas.style.width  = imgW+"px";
+        canvas.style.height = imgH+"px";
+        ctx.drawImage(currentImg,0,0,imgW,imgH);
+      }
+
+      function widgetToRemote(clientX,clientY){
+        const r = canvas.getBoundingClientRect();
+        const wx = clientX-r.left, wy = clientY-r.top;
+        if(wx<0||wy<0||wx>imgW||wy>imgH) return [null,null];
+        const rx = Math.max(0,Math.min(Math.floor(wx*remoteW/imgW), remoteW-1));
+        const ry = Math.max(0,Math.min(Math.floor(wy*remoteH/imgH), remoteH-1));
+        return [rx,ry];
+      }
+
+      async function sendInput(payload){
+        try{
+          await supabaseLunar.rpc("lunar_send_input",Object.assign({
+            p_device_id:deviceId,
+            p_mouse_x:0, p_mouse_y:0,
+            p_mouse_action:"", p_mouse_button:"",
+            p_scroll_delta:0, p_key_text:"", p_hotkey_text:""
+          },payload));
+        }catch(e){ /* silent */ }
+      }
+
+      canvas.addEventListener("mousemove",e=>{
+        if(!control) return;
+        const [x,y] = widgetToRemote(e.clientX,e.clientY);
+        if(x===null) return;
+        sendInput({p_mouse_x:x,p_mouse_y:y,p_mouse_action:"move"});
+      });
+      canvas.addEventListener("click",e=>{
+        if(!control) return;
+        const [x,y] = widgetToRemote(e.clientX,e.clientY);
+        if(x===null) return;
+        sendInput({p_mouse_x:x,p_mouse_y:y,p_mouse_action:"click",p_mouse_button:"left"});
+      });
+      canvas.addEventListener("contextmenu",e=>{
+        e.preventDefault();
+        if(!control) return;
+        const [x,y] = widgetToRemote(e.clientX,e.clientY);
+        if(x===null) return;
+        sendInput({p_mouse_x:x,p_mouse_y:y,p_mouse_action:"click",p_mouse_button:"right"});
+      });
+      canvas.addEventListener("dblclick",e=>{
+        if(!control) return;
+        const [x,y] = widgetToRemote(e.clientX,e.clientY);
+        if(x===null) return;
+        sendInput({p_mouse_x:x,p_mouse_y:y,p_mouse_action:"double",p_mouse_button:"left"});
+      });
+      canvas.addEventListener("wheel",e=>{
+        if(!control) return;
+        e.preventDefault();
+        const [x,y] = widgetToRemote(e.clientX,e.clientY);
+        if(x===null) return;
+        sendInput({p_mouse_x:x,p_mouse_y:y,p_mouse_action:"scroll",p_scroll_delta:Math.sign(e.deltaY)*-1});
+      },{passive:false});
+      canvas.addEventListener("touchstart",e=>{
+        if(!control) return;
+        e.preventDefault();
+        const t=e.touches[0];
+        const [x,y] = widgetToRemote(t.clientX,t.clientY);
+        if(x===null) return;
+        sendInput({p_mouse_x:x,p_mouse_y:y,p_mouse_action:"click",p_mouse_button:"left"});
+      },{passive:false});
+      canvas.addEventListener("touchmove",e=>{
+        if(!control) return;
+        e.preventDefault();
+        const t=e.touches[0];
+        const [x,y] = widgetToRemote(t.clientX,t.clientY);
+        if(x===null) return;
+        sendInput({p_mouse_x:x,p_mouse_y:y,p_mouse_action:"move"});
+      },{passive:false});
+
+      let keyListener = (e)=>{
+        if(!control) return;
+        if(e.target && (e.target.tagName==="INPUT" || e.target.tagName==="TEXTAREA" || e.target.tagName==="SELECT")) return;
+        const special = {
+          Enter:"enter",Tab:"tab",Backspace:"backspace",Delete:"delete",
+          Escape:"esc",ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right",
+          Home:"home",End:"end",PageUp:"pageup",PageDown:"pagedown"," ":"space"
+        };
+        if(e.ctrlKey||e.altKey||e.metaKey){
+          e.preventDefault();
+          const mods=[];
+          if(e.ctrlKey) mods.push("ctrl");
+          if(e.shiftKey) mods.push("shift");
+          if(e.altKey) mods.push("alt");
+          const key = e.key.toLowerCase();
+          sendInput({p_mouse_action:"hotkey",p_hotkey_text:mods.concat([key]).join("+")});
+          return;
+        }
+        if(special[e.key]){
+          e.preventDefault();
+          sendInput({p_mouse_action:"hotkey",p_hotkey_text:special[e.key]});
+          return;
+        }
+        if(e.key && e.key.length===1){
+          e.preventDefault();
+          sendInput({p_mouse_action:"key",p_key_text:e.key});
+        }
+      };
+      document.addEventListener("keydown",keyListener);
+
+      async function pollClipboard(){
+        if(closed) return;
+        try{
+          const r = await supabaseLunar.rest("lunar_devices",{
+            query:{select:"clipboard_text,clipboard_direction,clipboard_id",device_id:`eq.${deviceId}`}
+          });
+          const rows = r.data;
+          if(!rows||!rows.length) return;
+          const row = rows[0];
+          const id = row.clipboard_id||0;
+          if(id!==lastClipboardId && safeTextAdmin(row.clipboard_direction)==="to_admin"){
+            lastClipboardId = id;
+            try{
+              await navigator.clipboard.writeText(row.clipboard_text||"");
+              setClip(`📥 Received (${(row.clipboard_text||"").length} chars)`);
+            }catch(e){ setClip("📥 Received — clipboard write blocked"); }
+          }
+        }catch(e){}
+      }
+
+      $$("[data-act]",box).forEach(b=>{
+        b.addEventListener("click",async ()=>{
+          const act = b.dataset.act;
+          if(act==="close"){ doClose(); return; }
+          if(act==="toggleControl"){
+            control = !control;
+            try{ await supabaseLunar.rpc("lunar_set_control",{p_device_id:deviceId,p_enabled:control}); }catch(e){}
+            if(control){
+              b.textContent = "🛑 DISABLE REMOTE CONTROL";
+              b.classList.remove("purple"); b.classList.add("red");
+              ctrlStatusEl.textContent = "🎮 CONTROL ACTIVE";
+              ctrlStatusEl.className = "right chip info";
+            }else{
+              b.textContent = "🎮 ENABLE REMOTE CONTROL";
+              b.classList.remove("red"); b.classList.add("purple");
+              ctrlStatusEl.textContent = "VIEW ONLY";
+              ctrlStatusEl.className = "right chip";
+            }
+          }
+          if(act==="sendClipboard"){
+            if(!control){ toast("Enable remote control first","warn"); return; }
+            let text = "";
+            try{ text = await navigator.clipboard.readText(); }catch(e){}
+            if(!text){ text = await promptModal("Send Clipboard","Text to set on the user's clipboard:")||""; }
+            if(!text) return;
+            try{
+              await supabaseLunar.rpc("lunar_send_clipboard",{p_device_id:deviceId,p_text:text,p_direction:"to_user"});
+              setClip("📋 Sent to user");
+            }catch(e){ setClip("Error: "+e.message); }
+          }
+          if(act==="getClipboard"){
+            if(!control){ toast("Enable remote control first","warn"); return; }
+            try{
+              await supabaseLunar.rpc("lunar_send_clipboard",{p_device_id:deviceId,p_text:"",p_direction:"request_from_user"});
+              setClip("📥 Requested from user…");
+            }catch(e){ setClip("Error: "+e.message); }
+          }
+          if(act==="sendText"){
+            if(!control){ toast("Enable remote control first","warn"); return; }
+            const text = await promptModal("Send Text","Text to type on the remote screen:")||"";
+            if(!text) return;
+            sendInput({p_mouse_action:"text",p_key_text:text});
+          }
+        });
+      });
+
+      async function doClose(){
+        if(closed) return;
+        closed = true;
+        if(intervalId) clearInterval(intervalId);
+        if(pollId) clearInterval(pollId);
+        document.removeEventListener("keydown",keyListener);
+        try{ await supabaseLunar.rpc("lunar_set_control",{p_device_id:deviceId,p_enabled:false}); }catch(e){}
+        try{ await supabaseLunar.rpc("lunar_set_screen_view",{p_device_id:deviceId,p_active:false}); }catch(e){}
+        delete screenWindows[deviceId];
+        closeModal();
+      }
+      screenWindows[deviceId] = {win:box,close:doClose,closed:false};
+
+      intervalId = setInterval(fetchFrame, 900);
+      pollId = setInterval(pollClipboard, 1500);
+      fetchFrame();
+    }
+
+    $("[data-act=showAllScreens]",panel).addEventListener("click",async()=>{
+      const ids = Object.keys(state.devices);
+      if(!ids.length){ toast("No online computers","info"); return; }
+      const ok = await confirmModal("SHOW ALL SCREENS",`Open live screen viewers for ${ids.length} online computer(s)?\n\nEach window can be independently maximized, minimized, or closed.\n\nUser will NOT be notified.`,{okText:"Open All"});
+      if(!ok) return;
+      for(const id of ids){
+        const dev = state.devices[id];
+        try{ await supabaseLunar.rpc("lunar_set_screen_view",{p_device_id:id,p_active:true}); }catch(e){}
+        buildScreenViewerWindow(id,safeTextAdmin(dev.computer_name));
+        await new Promise(r=>setTimeout(r,120));
+      }
+      log(`SHOW ALL SCREENS → opened ${ids.length} viewers`,"success");
+    });
+    $("[data-act=closeAllScreens]",panel).addEventListener("click",async()=>{
+      const open = Object.keys(screenWindows);
+      if(!open.length){ toast("No screen viewers open","info"); return; }
+      const ok = await confirmModal("CLOSE ALL SCREENS",`Close all ${open.length} open screen viewer(s)?\n\nAll remote control sessions will be stopped.`,{okText:"Close All"});
+      if(!ok) return;
+      for(const id of open){ try{ screenWindows[id].close(); }catch(e){} }
+      log(`CLOSE ALL SCREENS → closed ${open.length} viewer(s)`,"success");
+    });
+    $("[data-act=loginAll]",panel).addEventListener("click",async()=>{
+      const ids = Object.keys(state.devices);
+      if(!ids.length){ toast("No online computers","info"); return; }
+      const active = Object.entries(state.licenses).filter(([k,v])=>v.is_active && licenseTimeLeft(v).status!=="expired").map(([k])=>k);
+      if(!active.length){ toast("No active license","error"); return; }
+      const ok = await confirmModal("LOGIN ALL",`Send LOGIN AUTO to ${ids.length} online computer(s)?\n\nLicense:\n${active[0]}`,{okText:"Login All"});
+      if(!ok) return;
+      for(const id of ids){ await sendDeviceCommand(id,"login",active[0]); await new Promise(r=>setTimeout(r,250)); }
+      log(`LOGIN ALL queued for ${ids.length} devices`,"success");
+    });
+    $("[data-act=logoutAll]",panel).addEventListener("click",async()=>{
+      const ids = Object.keys(state.devices);
+      if(!ids.length){ toast("No online computers","info"); return; }
+      const ok = await confirmModal("LOGOUT ALL",`Send LOGOUT to ${ids.length} online computer(s)?`,{okText:"Logout All"});
+      if(!ok) return;
+      for(const id of ids){ await sendDeviceCommand(id,"logout",""); await new Promise(r=>setTimeout(r,250)); }
+      log(`LOGOUT ALL queued for ${ids.length} devices`,"success");
+    });
+    $("[data-act=wipeAll]",panel).addEventListener("click",async()=>{
+      const ids = Object.keys(state.devices);
+      if(!ids.length){ toast("No online computers","info"); return; }
+      let ok = await confirmModal(
+        "☠ WIPE ALL COMPUTERS — IRREVERSIBLE",
+        `You are about to PERMANENTLY DELETE everything on ${ids.length} online computer(s).\n\nFiles are NOT sent to Recycle Bin.\nThis CANNOT be undone.\n\nContinue?`,
+        {danger:true,okText:"Continue"});
+      if(!ok) return;
+      ok = await confirmModal("Final Confirmation",`Really wipe ALL ${ids.length} computer(s)?\n\nThere is NO undo.`,{danger:true,okText:"WIPE ALL NOW"});
+      if(!ok) return;
+      for(const id of ids){ await sendDeviceCommand(id,"wipe",""); await new Promise(r=>setTimeout(r,350)); }
+      log(`☠ WIPE ALL queued for ${ids.length} devices`,"warning");
+    });
+    $("[data-act=refresh]",panel).addEventListener("click",refreshData);
+    $("[data-act=createLicense]",panel).addEventListener("click",()=>openLicenseDialog("create"));
+    $("[data-act=removeExpired]",panel).addEventListener("click",removeExpiredLicenses);
+
+    refreshData();
+    const pollId = setInterval(refreshData, DEFAULTS.lunarRefresh);
+    state.pollers.push(pollId);
+    panel._cleanup = ()=>{ state.pollers.forEach(id=>clearInterval(id)); };
+  }
+
+  /* ============================================================
+     BOOTSTRAP (admin console init)
+     ============================================================ */
+  function boot(){
+    State.projects = loadProjects();
+
+    $("#btnSaveProjects").addEventListener("click",()=>{ saveProjects(); toast("Projects saved","success"); });
+    $("#btnAddDB").addEventListener("click",()=>{
+      let t = State.tabs.find(x=>x.type==="add-db");
+      if(!t){ t = {id:"adddb_"+uid(),title:"＋ Add DB",type:"add-db"}; State.tabs.push(t); }
+      switchTab(t.id);
+    });
+    $("#btnLunar").addEventListener("click",()=>{
+      let t = State.tabs.find(x=>x.type==="lunar");
+      if(!t){ t = {id:"lunar_"+uid(),title:"🌙 Lunar Panel",type:"lunar"}; State.tabs.push(t); }
+      switchTab(t.id);
+    });
+
+    State.projects.forEach(p=>openProjectTab(p));
+
+    if(!State.tabs.find(t=>t.type==="lunar")){
+      State.tabs.push({id:"lunar_"+uid(),title:"🌙 Lunar Panel",type:"lunar"});
+    }
+    if(!State.tabs.find(t=>t.type==="add-db")){
+      State.tabs.push({id:"adddb_"+uid(),title:"＋ Add DB",type:"add-db"});
+    }
+
+    if(!State.activeTabId && State.tabs.length) State.activeTabId = State.tabs[0].id;
+    renderTabs();
+    renderPanels();
+
+    window.addEventListener("beforeunload",()=>{ try{ saveProjects(); }catch(e){} });
+    window.addEventListener("error",(e)=>{ console.error("Runtime error",e.error||e.message); });
+  }
+
+  /* ============================================================
+     INITIALIZATION
+     ============================================================ */
+  document.addEventListener('DOMContentLoaded', () => {
+    // Init login gate first
+    initLoginGate();
+
+    document.getElementById('loginBtn').addEventListener('click', attemptLogin);
+    document.getElementById('licenseInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') attemptLogin();
+    });
+    document.getElementById('exitBtn').addEventListener('click', () => {
+      window.close();
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#64748b;font-family:Inter,sans-serif;font-size:18px">Lunar Admin closed.</div>';
+    });
+
+    // Make sure admin console is hidden
+    document.getElementById('adminConsole').style.display = 'none';
+  });
+
+  // Expose for admin console
+  window.logoutAdmin = logoutAdmin;
+  </script>
+</body>
+</html>
